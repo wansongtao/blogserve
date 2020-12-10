@@ -8,12 +8,16 @@ class Router {
     //   引入模块
     const express = require('express')
     const path = require('path')
+    const process = require('../process/processing')
 
     // 创建路由实例
     this.myRouter = express.Router()
 
     // 返回静态资源
     this.myRouter.use('/upload', express.static(path.join(__dirname, '../upload')))
+
+    // 登录接口
+    this.myRouter.post('/login', process.login)
   }
 
   /**
@@ -26,4 +30,5 @@ class Router {
 
 const ROUTERS = new Router()
 
+// 导出路由实例
 module.exports = ROUTERS.backRouter()
