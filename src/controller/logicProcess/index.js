@@ -4,9 +4,9 @@
  * @date 2020-12-08
  */
 class Process {
-  static login () {
-    console.log(1)
-  }
+    static login() {
+        console.log(1)
+    }
 }
 
 module.exports = Process

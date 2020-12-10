@@ -2,7 +2,7 @@
   "name": "blogserve",
   "version": "1.0.0",
   "description": "个人博客后端",
-  "main": "./src/index.js",
+  "main": "./src/controller/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

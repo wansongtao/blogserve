@@ -9,6 +9,7 @@ class Index {
     const express = require('express')
     const bodyParser = require('body-parser')
     const router = require('./router/router')
+    const cookieParser = require('cookie-parser')
 
     // 创建express实例
     const webApp = express()
@@ -23,6 +24,9 @@ class Index {
     // 设置接收数据的格式，表单数据和json格式的都行
     webApp.use(bodyParser.urlencoded({ extended: false }))
     webApp.use(bodyParser.json())
+
+    // 用来获取cookie，req.cookies.authorization
+    webApp.use(cookieParser())
 
     webApp.all('*', (req, res, next) => {
       // 允许跨域
@@ -56,5 +60,4 @@ class Index {
   }
 }
 
-// eslint-disable-next-line no-new
 new Index()
