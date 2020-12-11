@@ -4,7 +4,7 @@
  * @date 2020-12-08
  */
 class Index {
-  constructor () {
+  constructor() {
     //   引入模块
     const express = require('express')
     const bodyParser = require('body-parser')
@@ -14,25 +14,27 @@ class Index {
     // 创建express实例
     const webApp = express()
 
-    // 设置服务器端口
-    webApp.listen(6666, (err) => {
-      if (err) {
-        console.error(err)
-      }
-    })
-
     // 设置接收数据的格式，表单数据和json格式的都行
-    webApp.use(bodyParser.urlencoded({ extended: false }))
+    webApp.use(bodyParser.urlencoded({
+      extended: false
+    }))
     webApp.use(bodyParser.json())
 
     // 用来获取cookie，req.cookies.authorization
     webApp.use(cookieParser())
 
+    // 设置服务器端口
+    webApp.listen(6060, (err) => {
+      if (err) {
+        console.error(err)
+      }
+    })
+
     webApp.all('*', (req, res, next) => {
       // 允许跨域
       res.header('Access-Control-Allow-Origin', '*')
       // 设置请求头
-      res.header('Access-Control-Allow-Headers, Content-Type, Authorization')
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
       next()
     })
