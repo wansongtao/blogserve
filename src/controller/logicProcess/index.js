@@ -4,8 +4,14 @@
  * @date 2020-12-08
  */
 class Process {
-    static login() {
-        console.log(1)
+    static users = require('./users')
+
+    static async login(req, res) {
+        let message = {code: 500, data: {}, message: '服务器繁忙，请稍后再试', success: false}
+
+        message = await Process.users.queryUser(req.body)
+
+        res.send(message)
     }
 }
 
