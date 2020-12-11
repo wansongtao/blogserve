@@ -14,10 +14,13 @@ class Router {
     this.myRouter = express.Router()
 
     // 返回静态资源
-    this.myRouter.use('/upload', express.static(path.join(__dirname, '../upload')))
+    this.myRouter.use('/upload', express.static(path.join(__dirname, '../../upload')))
 
     // 登录接口
-    this.myRouter.post('/login', process.login)
+    this.myRouter.post('/admin/login', process.login)
+
+    // 获取用户信息
+    this.myRouter.get('/admin/getuserinfo', process.getUserInfo)
   }
 
   /**
