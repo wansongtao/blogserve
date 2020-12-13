@@ -19,6 +19,9 @@ class Router {
     // 登录接口
     this.myRouter.post('/admin/login', process.login)
 
+    // 登出接口
+    this.myRouter.get('/admin/logout', process.logout);
+
     // 获取用户信息
     this.myRouter.get('/admin/getuserinfo', process.getUserInfo)
   }

@@ -114,6 +114,30 @@ class Token {
             return 0
         }
     }
+
+    /**
+     * @description 删除该用户的登录信息
+     * @param {string} userAccount 用户账号
+     * @returns {boolean} 成功true
+     */
+    static deleteUserInfo(userAccount) {
+        let backVal = false
+
+        if (typeof userAccount !== 'string') {
+            console.error('Class Token => deleteUserInfo(): arguments type error.')
+            backVal = false
+        }
+        else {
+            this.userInfoArr.forEach((item, index) => {
+                if (item.userId === userAccount) {
+                    this.userInfoArr.splice(index, 1)
+                    backVal = true
+                }
+            })
+        }
+
+        return backVal
+    }
 }
 
 module.exports = Token

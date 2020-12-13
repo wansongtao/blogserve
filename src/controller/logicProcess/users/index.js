@@ -99,7 +99,9 @@ class Users {
 
             message = {
                 code: 200,
-                data: {token},
+                data: {
+                    token
+                },
                 message: '登录成功',
                 success: true
             }
@@ -130,7 +132,8 @@ class Users {
     static async queryUserInfo(userAccount) {
         let sqlStr = 'select userName, userImgUrl from userinfo where ISDELETE = ? and userAccount = ?'
 
-        let data = await Users.database.query(sqlStr, [0, userAccount]), message = {}
+        let data = await Users.database.query(sqlStr, [0, userAccount]),
+            message = {}
 
         if (data[0]) {
             message = {
@@ -142,12 +145,38 @@ class Users {
                 message: '获取用户信息成功',
                 success: true
             }
-        }else {
+        } else {
             message = {
                 code: 400,
                 data: {},
                 message: '服务器繁忙，请稍后再试',
                 success: false
+            }
+        }
+
+        return message
+    }
+
+    /**
+     * @description 删除保存的用户登录信息
+     * @param {string} userAccount 用户账号
+     * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
+     */
+    static async clearTokenUserInfo(userAccount) {
+        let message = {}
+        if (Users.token.deleteUserInfo(userAccount)) {
+            message = {
+                code: 200,
+                data: {},
+                message: '退出登录成功',
+                success: true
+            }
+        } else {
+            message = {
+                code: 201,
+                data: {},
+                message: '删除用户的登录信息失败',
+                success: true
             }
         }
 
