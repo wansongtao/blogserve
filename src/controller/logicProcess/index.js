@@ -32,6 +32,54 @@ class Process {
     }
 
     /**
+     * @description 根据验证token的返回值执行相应的操作
+     * @param {string|number} userAccount 验证token后的返回值
+     * @param {function} fn 回调函数(异步)
+     * @returns message{code, data, message, success}
+     */
+    static async backTokenProcess(userAccount, fn) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        try {
+            if (typeof userAccount === 'string') {
+                message = await fn(userAccount)
+            } else if (userAccount === -2) {
+                message = {
+                    code: 300,
+                    data: {},
+                    message: '服务器繁忙，请稍后再试',
+                    success: false
+                }
+            } else if (userAccount === 0) {
+                message = {
+                    code: 500,
+                    data: {},
+                    message: '用户身份过期，请重新登录',
+                    success: false
+                }
+            } else if (userAccount === -1) {
+                message = {
+                    code: 501,
+                    data: {},
+                    message: '该账号已在别的地方登录',
+                    success: false
+                }
+            }
+        }
+        catch(ex) {
+            console.error('Class Process => backTokenProcess(): ', ex.message)
+        }
+        finally {
+            return message
+        }
+    }
+
+    /**
      * @description 用户登录
      * @param {*} req 
      * @param {*} res 
@@ -56,7 +104,7 @@ class Process {
      */
     static async getUserInfo(req, res) {
         let message = {
-            code: 500,
+            code: 444,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
@@ -64,30 +112,27 @@ class Process {
 
         let userAccount = Process.verifyToken(req)
 
-        if (typeof userAccount === 'string') {
-            message = await Process.users.queryUserInfo(userAccount)
-        } else if (userAccount === -2) {
-            message = {
-                code: 300,
-                data: {},
-                message: '服务器繁忙，请稍后再试',
-                success: false
-            }
-        } else if (userAccount === 0) {
-            message = {
-                code: 500,
-                data: {},
-                message: '用户身份过期，请重新登录',
-                success: false
-            }
-        } else if (userAccount === -1) {
-            message = {
-                code: 501,
-                data: {},
-                message: '该账号已在别的地方登录',
-                success: false
-            }
+        message = await Process.backTokenProcess(userAccount, Process.users.queryUserInfo)
+
+        res.send(message)
+    }
+
+    /**
+     * @description 用户登出，删除保存的用户信息
+     * @param {*} req 
+     * @param {*} res 
+     */
+    static async logout(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
         }
+
+        let userAccount = Process.verifyToken(req)
+
+        message = await Process.backTokenProcess(userAccount, Process.users.clearTokenUserInfo)
 
         res.send(message)
     }
