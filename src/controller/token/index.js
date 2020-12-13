@@ -50,7 +50,7 @@ class Token {
     }
 
     /**
-     * @description 验证用户的唯一标识码
+     * @description 验证用户的唯一标识码（实现单点登录）
      * @param {number} userId 
      * @param {string} userKey 
      * @returns 通过返回true，否则返回false

@@ -4,7 +4,7 @@
   "description": "个人博客后端",
   "main": "./src/controller/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo ./src/controller/index.js"
   },
   "keywords": [],
   "license": "MIT",
