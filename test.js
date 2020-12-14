@@ -1,4 +1,4 @@
-const tree = [
+const tree1 = [
     {id: 1, pid: 0},
     {id: 2, pid: 0},
     {id: 3, pid: 0},
@@ -9,7 +9,21 @@ const tree = [
     {id: 8, pid: 6},
     {id: 9, pid: 6},
     {id: 10, pid: 4}
-]
+];
+
+const tree2 = [
+    {id: 1, pid: 0},
+    {id: 2, pid: 0},
+    {id: 3, pid: 0},
+    {id: 4, pid: 2},
+    {id: 5, pid: 2},
+    {id: 6, pid: 4},
+    {id: 7, pid: 4},
+    {id: 8, pid: 6},
+    {id: 9, pid: 6},
+    {id: 10, pid: 4}
+];
+
 
 function convertTree(list, pid = 0) {
     const arr = [];
@@ -50,7 +64,7 @@ function convertTreeTwo(list, pid = 0) {
 }
 
 
-function testTime(count = 99999, fn = convertTree) {
+function testTime(fn = convertTree, tree = tree1, count = 999999) {
     console.time();
 
     for(let i = 0; i < count; i++) {
@@ -60,9 +74,12 @@ function testTime(count = 99999, fn = convertTree) {
     console.timeEnd();
 }
 
-testTime();
-// console.log(convertTreeTwo(tree)[1]);
+console.log('优化后的代码：');
+testTime(convertTree, tree1);
 
-// console.log(convertTree(tree)['1']);
+console.log('没优化的代码：');
+testTime(convertTreeTwo, tree2);
+// console.log(convertTreeTwo(tree2)[1]);
 
-// console.log(convertTree(tree)[1].children[0]);
+
+// console.log(convertTreeThree(tree2)[1].children[0]);
