@@ -4,8 +4,8 @@
  * @param {number} testCount 测试次数 10000
  * @param {number} randomNumberCount 生成的随机数数量 10000
  */
-function test(fn, testCount = 10000, randomNumberCount = 10000) {
-    console.time(`测试的算法是${fn.name}，测试次数${testCount}次，耗时`);
+function test(fn, testCount = 10, randomNumberCount = 100000) {
+    console.time(`测试的算法是${fn.name}，测试次数${testCount}次，排序${randomNumberCount}个数字，共耗时`);
     for (let loop = 0; loop < testCount; loop++) {
         let randomNumberArr = [];
 
@@ -17,7 +17,7 @@ function test(fn, testCount = 10000, randomNumberCount = 10000) {
 
         fn(randomNumberArr);
     }
-    console.timeEnd(`测试的算法是${fn.name}，测试次数${testCount}次，耗时`);
+    console.timeEnd(`测试的算法是${fn.name}，测试次数${testCount}次，排序${randomNumberCount}个数字，共耗时`);
 }
 
 /**
@@ -231,4 +231,13 @@ function mergeOrder (arr) {
     return merge(mergeOrder(leftArr), mergeOrder(rightArr));
 }
 
-testAlgorithm(mergeOrder);
+setTimeout(() => {
+    test(bubbleOrder);
+}, 0);
+
+test(selectOrder);
+test(baseOrder);
+test(insertOrder);
+test(shellOrder);
+test(quickOrder);
+test(mergeOrder);
