@@ -240,7 +240,7 @@ CREATE TABLE `userinfo` (
 -- ----------------------------
 -- Records of userinfo
 -- ----------------------------
-INSERT INTO `userinfo` VALUES ('Sadmin', '万松涛', '0', '/upload/woailuo1.jpeg', '1998-05-04', 'SpaceX0529', '2294215581', '2294215581@qq.com', '游山玩水、玩游戏', null, '失败并不可拍，害怕失败才真正可怕', null, null, null, null, null, null, '0');
+INSERT INTO `userinfo` VALUES ('Sadmin', '大梦一场空', '0', '/upload/woailuo1.jpeg', '2020-12-12', 'SpaceX88889', '8888888', '888888@qq.com', '游山玩水、玩游戏', null, '失败并不可拍，害怕失败才真正可怕', null, null, null, null, null, null, '0');
 
 -- ----------------------------
 -- Table structure for `users`
@@ -270,4 +270,4 @@ CREATE TABLE `users` (
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `users` VALUES ('100', 'Sadmin', 'w1998.0529.love', null, null, null, null, null, null, '0');
+INSERT INTO `users` VALUES ('100', 'Sadmin', 'w9489156156', null, null, null, null, null, null, '0');
