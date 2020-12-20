@@ -1,8 +1,8 @@
 /**
  * @description 测试算法速度
  * @param {Function} fn 算法函数
- * @param {number} testCount 测试次数 10000
- * @param {number} randomNumberCount 生成的随机数数量 10000
+ * @param {number} testCount 测试次数 10
+ * @param {number} randomNumberCount 生成的随机数数量 100000
  */
 function test(fn, testCount = 10, randomNumberCount = 100000) {
     console.time(`测试的算法是${fn.name}，测试次数${testCount}次，排序${randomNumberCount}个数字，共耗时`);
@@ -178,14 +178,17 @@ function quickOrder (arr) {
 
     let lessArr = [],
     largeArr = [],
-    pivot = arr.splice(0, 1)[0];
+    pivot = arr.splice(0, 1);
 
     arr.forEach(item => {
-        if (item > pivot) {
+        if (item > pivot[0]) {
             largeArr.push(item);
         }
-        else{
+        else if (item < pivot[0]){
             lessArr.push(item);
+        }
+        else {
+            pivot.push(item);
         }
     });
 
@@ -231,13 +234,14 @@ function mergeOrder (arr) {
     return merge(mergeOrder(leftArr), mergeOrder(rightArr));
 }
 
-setTimeout(() => {
-    test(bubbleOrder);
-}, 0);
+// setTimeout(() => {
+//     test(bubbleOrder);
+// }, 0);
 
-test(selectOrder);
-test(baseOrder);
-test(insertOrder);
-test(shellOrder);
-test(quickOrder);
-test(mergeOrder);
+// test(selectOrder);
+// test(baseOrder);
+// test(insertOrder);
+// test(shellOrder);
+// testAlgorithm(quickOrder);
+test(quickOrder, 10, 1000000);
+// test(mergeOrder);
