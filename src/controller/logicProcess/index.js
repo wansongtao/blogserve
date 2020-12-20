@@ -6,6 +6,7 @@
 class Process {
     static users = require('./users')
     static token = require('../token')
+    static uploadFile = require('./uploadFile')
 
     /**
      * @description 验证token
@@ -33,11 +34,11 @@ class Process {
 
     /**
      * @description 根据验证token的返回值执行相应的操作
-     * @param {string|number} userAccount 验证token后的返回值
      * @param {function} fn 回调函数(异步)
+     * @param {object} args 传给回调函数的参数对象
      * @returns message{code, data, message, success}
      */
-    static async backTokenProcess(userAccount, fn) {
+    static async backTokenProcess(fn, args = {}) {
         let message = {
             code: 444,
             data: {},
@@ -45,9 +46,14 @@ class Process {
             success: false
         }
 
+        /**
+         * @description 验证token后的返回值
+         */
+        const {userAccount} = args
+
         try {
             if (typeof userAccount === 'string') {
-                message = await fn(userAccount)
+                message = await fn(args)
             } else if (userAccount === -2) {
                 message = {
                     code: 300,
@@ -112,7 +118,7 @@ class Process {
 
         let userAccount = Process.verifyToken(req)
 
-        message = await Process.backTokenProcess(userAccount, Process.users.queryUserInfo)
+        message = await Process.backTokenProcess(Process.users.queryUserInfo, {userAccount})
 
         res.send(message)
     }
@@ -132,7 +138,27 @@ class Process {
 
         let userAccount = Process.verifyToken(req)
 
-        message = await Process.backTokenProcess(userAccount, Process.users.clearTokenUserInfo)
+        message = await Process.backTokenProcess(Process.users.clearTokenUserInfo, {userAccount})
+
+        res.send(message)
+    }
+
+    /**
+     * @description 将用户上传的图片存入服务器
+     * @param {*} req 
+     * @param {*} res 
+     */
+    static async uploadImg(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        let userAccount = Process.verifyToken(req)
+
+        message = await Process.backTokenProcess(Process.uploadFile.uploadImage, {userAccount, req})
 
         res.send(message)
     }

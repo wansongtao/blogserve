@@ -24,6 +24,9 @@ class Router {
 
     // 获取用户信息
     this.myRouter.get('/admin/getuserinfo', process.getUserInfo)
+
+    // 上传图片接口
+    this.myRouter.post('/admin/upload', process.uploadImg)
   }
 
   /**

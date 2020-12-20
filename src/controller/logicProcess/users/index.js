@@ -129,8 +129,9 @@ class Users {
      * @param {string} userAccount 
      * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
      */
-    static async queryUserInfo(userAccount) {
-        let sqlStr = 'select userName, userImgUrl from userinfo where ISDELETE = ? and userAccount = ?'
+    static async queryUserInfo({userAccount}) {
+        let sqlStr = `select userName, userGender, userImgUrl, birthday, weChat, qqAcc, 
+        email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`
 
         let data = await Users.database.query(sqlStr, [0, userAccount]),
             message = {}
@@ -140,7 +141,15 @@ class Users {
                 code: 200,
                 data: {
                     name: data[0].userName,
-                    avatar: data[0].userImgUrl
+                    userGender: data[0].userGender,
+                    avatar: data[0].userImgUrl,
+                    birthday: data[0].birthday.toString().substr(0, 10),
+                    weChat: data[0].weChat,
+                    qqAcc: data[0].qqAcc,
+                    email: data[0].email,
+                    hobby: data[0].hobby.split('/'),
+                    personalDes: data[0].personalDes,
+                    lifeMotto: data[0].lifeMotto
                 },
                 message: '获取用户信息成功',
                 success: true
@@ -162,7 +171,7 @@ class Users {
      * @param {string} userAccount 用户账号
      * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
      */
-    static async clearTokenUserInfo(userAccount) {
+    static async clearTokenUserInfo({userAccount}) {
         let message = {}
         if (Users.token.deleteUserInfo(userAccount)) {
             message = {
