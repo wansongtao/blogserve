@@ -63,7 +63,7 @@ class Database {
           conn.release() //释放连接
 
           if (err) {
-            consolve.error('Class Database => _executeSql_(conn.query): ', err.stack)
+            console.error('Class Database => _executeSql_(conn.query): ', err.stack)
             reject(false)
           }
 
@@ -99,6 +99,40 @@ class Database {
       })
       .then(conn => {
         return Database._executeSql_(conn, sqlStr, data)
+      })
+      .catch(err => {
+        console.error('Class Database => query(): ', err)
+        return false
+      })
+  }
+
+  /**
+   * @description 修改操作
+   * @param {string} sqlStr 修改语句
+   * @param {array} data 要插入修改语句中的值
+   * @returns {Promise} 修改成功返回true，失败返回false
+   */
+  static async update(sqlStr, data) {
+    return new Promise((resolve, reject) => {
+        let isVerify = Database._verifyParam_([{
+          value: sqlStr,
+          type: 'String'
+        }, {
+          value: data,
+          type: 'Array'
+        }])
+
+        isVerify ? resolve() : reject('参数类型错误')
+      })
+      .then(() => {
+        return Database._getConn_()
+      })
+      .then(async (conn) => {
+        let result = await Database._executeSql_(conn, sqlStr, data)
+
+        return new Promise((resolve, reject) => {
+          result.affectedRows > 0 ? resolve(true) : reject(false)
+        })
       })
       .catch(err => {
         console.error('Class Database => query(): ', err)

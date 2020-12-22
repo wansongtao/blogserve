@@ -27,6 +27,9 @@ class Router {
 
     // 上传图片接口
     this.myRouter.post('/admin/upload', process.uploadImg)
+
+    // 修改用户信息
+    this.myRouter.post('/admin/useredit', process.editUserInfo)
   }
 
   /**

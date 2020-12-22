@@ -129,7 +129,9 @@ class Users {
      * @param {string} userAccount 
      * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
      */
-    static async queryUserInfo({userAccount}) {
+    static async queryUserInfo({
+        userAccount
+    }) {
         let sqlStr = `select userName, userGender, userImgUrl, birthday, weChat, qqAcc, 
         email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`
 
@@ -143,7 +145,7 @@ class Users {
                     name: data[0].userName,
                     userGender: data[0].userGender,
                     avatar: data[0].userImgUrl,
-                    birthday: data[0].birthday.toString().substr(0, 10),
+                    birthday: data[0].birthday,
                     weChat: data[0].weChat,
                     qqAcc: data[0].qqAcc,
                     email: data[0].email,
@@ -171,7 +173,9 @@ class Users {
      * @param {string} userAccount 用户账号
      * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
      */
-    static async clearTokenUserInfo({userAccount}) {
+    static async clearTokenUserInfo({
+        userAccount
+    }) {
         let message = {}
         if (Users.token.deleteUserInfo(userAccount)) {
             message = {
@@ -186,6 +190,69 @@ class Users {
                 data: {},
                 message: '删除用户的登录信息失败',
                 success: true
+            }
+        }
+
+        return message
+    }
+
+    /**
+     * @description 修改用户信息
+     * @param {object} {userAccount, userinfo} 
+     * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
+     */
+    static async updateUserInfo({
+        userAccount,
+        userInfo
+    }) {
+        let isVerify = Users._verifyParam_([{
+            value: userAccount,
+            type: 'string'
+        }, {
+            value: userInfo,
+            type: 'Object'
+        }])
+
+        if (!isVerify) {
+            return {
+                code: 300,
+                data: {},
+                message: '参数类型错误',
+                success: false
+            }
+        }
+
+        let sqlStr = `update userinfo set userName = ?, userGender = ?, userImgUrl = ?, birthday = ?, weChat = ?,
+         qqAcc = ?, email = ?, hobby = ?, personalDes = ?, lifeMotto = ? where ISDELETE = ? and userAccount = ?`;
+        let {
+            userName,
+            userGender,
+            avatar,
+            birthday,
+            weChat,
+            qqAcc,
+            email,
+            hobby,
+            personalDes,
+            lifeMotto
+        } = userInfo,
+        isSuccess = await Users.database.update(sqlStr, [userName, userGender, avatar, birthday.substr(0, 10), 
+            weChat, qqAcc, email, hobby.join('/'), personalDes, lifeMotto, 0, userAccount]),
+            message = {}
+            
+        if (isSuccess) {
+            message = {
+                code: 200,
+                data: {},
+                message: '修改用户信息成功',
+                success: true
+            }
+        } else {
+            message = {
+                code: 400,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
             }
         }
 

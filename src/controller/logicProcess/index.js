@@ -25,7 +25,7 @@ class Process {
         } else {
             return -2
         }
-        
+
         token = token.split(' ')[1]
         let userId = this.token.verifyToken(token)
 
@@ -49,7 +49,9 @@ class Process {
         /**
          * @description 验证token后的返回值
          */
-        const {userAccount} = args
+        const {
+            userAccount
+        } = args
 
         try {
             if (typeof userAccount === 'string') {
@@ -76,11 +78,9 @@ class Process {
                     success: false
                 }
             }
-        }
-        catch(ex) {
+        } catch (ex) {
             console.error('Class Process => backTokenProcess(): ', ex.message)
-        }
-        finally {
+        } finally {
             return message
         }
     }
@@ -118,7 +118,9 @@ class Process {
 
         let userAccount = Process.verifyToken(req)
 
-        message = await Process.backTokenProcess(Process.users.queryUserInfo, {userAccount})
+        message = await Process.backTokenProcess(Process.users.queryUserInfo, {
+            userAccount
+        })
 
         res.send(message)
     }
@@ -138,7 +140,9 @@ class Process {
 
         let userAccount = Process.verifyToken(req)
 
-        message = await Process.backTokenProcess(Process.users.clearTokenUserInfo, {userAccount})
+        message = await Process.backTokenProcess(Process.users.clearTokenUserInfo, {
+            userAccount
+        })
 
         res.send(message)
     }
@@ -158,7 +162,34 @@ class Process {
 
         let userAccount = Process.verifyToken(req)
 
-        message = await Process.backTokenProcess(Process.uploadFile.uploadImage, {userAccount, req})
+        message = await Process.backTokenProcess(Process.uploadFile.uploadImage, {
+            userAccount,
+            req
+        })
+
+        res.send(message)
+    }
+
+    /**
+     * @description 修改用户信息
+     * @param {*} req 
+     * @param {*} res 
+     */
+    static async editUserInfo(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        let userAccount = Process.verifyToken(req), 
+        userInfo = req.body;
+
+        message = await Process.backTokenProcess(Process.users.updateUserInfo, {
+            userAccount,
+            userInfo
+        })
 
         res.send(message)
     }
