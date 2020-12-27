@@ -30,6 +30,9 @@ class Router {
 
     // 修改用户信息
     this.myRouter.post('/admin/useredit', process.editUserInfo)
+
+    // 获取文章分类
+    this.myRouter.get('/admin/getcategory', process.getCategory);
   }
 
   /**

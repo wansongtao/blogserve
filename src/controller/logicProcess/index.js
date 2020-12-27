@@ -7,6 +7,7 @@ class Process {
     static users = require('./users')
     static token = require('../token')
     static uploadFile = require('./uploadFile')
+    static article = require('./article')
 
     /**
      * @description 验证token
@@ -190,6 +191,26 @@ class Process {
             userAccount,
             userInfo
         })
+
+        res.send(message)
+    }
+
+    /**
+     * @description 获取文章分类
+     * @param {*} req 
+     * @param {*} res 
+     */
+    static async getCategory(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        let userAccount = Process.verifyToken(req)
+
+        message = await Process.backTokenProcess(Process.article.getArticleCategory, {userAccount})
 
         res.send(message)
     }

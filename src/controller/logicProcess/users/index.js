@@ -199,7 +199,7 @@ class Users {
     /**
      * @description 修改用户信息
      * @param {object} {userAccount, userinfo} 
-     * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async updateUserInfo({
         userAccount,
