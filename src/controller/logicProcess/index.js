@@ -14,7 +14,7 @@ class Process {
      * @param {*} req 
      * @returns 通过返回用户账号, 获取token失败返回-2，token超时返回0，token错误返回-1
      */
-    static verifyToken(req) {
+    static _verifyToken_(req) {
         let token = ''
 
         if (req.query.token != undefined) {
@@ -39,7 +39,7 @@ class Process {
      * @param {object} args 传给回调函数的参数对象
      * @returns message{code, data, message, success}
      */
-    static async backTokenProcess(fn, args = {}) {
+    static async _backTokenProcess_(fn, args = {}) {
         let message = {
             code: 444,
             data: {},
@@ -80,7 +80,7 @@ class Process {
                 }
             }
         } catch (ex) {
-            console.error('Class Process => backTokenProcess(): ', ex.message)
+            console.error('Class Process => _backTokenProcess_(): ', ex.message)
         } finally {
             return message
         }
@@ -117,9 +117,9 @@ class Process {
             success: false
         }
 
-        let userAccount = Process.verifyToken(req)
+        let userAccount = Process._verifyToken_(req)
 
-        message = await Process.backTokenProcess(Process.users.queryUserInfo, {
+        message = await Process._backTokenProcess_(Process.users.queryUserInfo, {
             userAccount
         })
 
@@ -139,9 +139,9 @@ class Process {
             success: false
         }
 
-        let userAccount = Process.verifyToken(req)
+        let userAccount = Process._verifyToken_(req)
 
-        message = await Process.backTokenProcess(Process.users.clearTokenUserInfo, {
+        message = await Process._backTokenProcess_(Process.users.clearTokenUserInfo, {
             userAccount
         })
 
@@ -161,9 +161,9 @@ class Process {
             success: false
         }
 
-        let userAccount = Process.verifyToken(req)
+        let userAccount = Process._verifyToken_(req)
 
-        message = await Process.backTokenProcess(Process.uploadFile.uploadImage, {
+        message = await Process._backTokenProcess_(Process.uploadFile.uploadImage, {
             userAccount,
             req
         })
@@ -184,10 +184,10 @@ class Process {
             success: false
         }
 
-        let userAccount = Process.verifyToken(req), 
+        let userAccount = Process._verifyToken_(req), 
         userInfo = req.body;
 
-        message = await Process.backTokenProcess(Process.users.updateUserInfo, {
+        message = await Process._backTokenProcess_(Process.users.updateUserInfo, {
             userAccount,
             userInfo
         })
@@ -208,12 +208,19 @@ class Process {
             success: false
         }
 
-        let userAccount = Process.verifyToken(req)
+        let userAccount = Process._verifyToken_(req)
 
-        message = await Process.backTokenProcess(Process.article.getArticleCategory, {userAccount})
+        message = await Process._backTokenProcess_(Process.article.getArticleCategory, {userAccount})
 
         res.send(message)
     }
 }
 
-module.exports = Process
+module.exports = {
+    login: Process.login,
+    getUserInfo: Process.getUserInfo,
+    logout: Process.logout,
+    uploadImg: Process.uploadImg,
+    editUserInfo: Process.editUserInfo,
+    getCategory: Process.getCategory
+}

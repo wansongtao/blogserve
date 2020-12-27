@@ -18,8 +18,8 @@ class Token {
      * @param {number} userId 用户id
      * @param {string} userKey 用户登录时，生成的唯一标识码
      */
-    static userInfo(userId, userKey) {
-        let userInfoArr = this.userInfoArr
+    static _userInfo_(userId, userKey) {
+        let userInfoArr = Token.userInfoArr
 
         if (userInfoArr.length > 0) {
             let isSame = false
@@ -46,7 +46,7 @@ class Token {
             }]
         }
 
-        this.userInfoArr = userInfoArr
+        Token.userInfoArr = userInfoArr
     }
 
     /**
@@ -55,8 +55,8 @@ class Token {
      * @param {string} userKey 
      * @returns 通过返回true，否则返回false
      */
-    static verifyUserKey(userId, userKey) {
-        return this.userInfoArr.some(item => {
+    static _verifyUserKey_(userId, userKey) {
+        return Token.userInfoArr.some(item => {
             if (item.userId == userId && item.userKey == userKey) {
                 return true
             }
@@ -77,14 +77,14 @@ class Token {
             let num2 = Math.floor(Math.random() * 1000 + 888)
             let userKey = 'wansongtao' + num1.toString() + num2.toString()
 
-            const token = this.jsonwebtoken.sign({
+            const token = Token.jsonwebtoken.sign({
                 userId,
                 userKey
-            }, this.key, {
+            }, Token.key, {
                 expiresIn: '4h'
             })
 
-            this.userInfo(userId, userKey)
+            Token._userInfo_(userId, userKey)
 
             return token
         } catch (ex) {
@@ -100,11 +100,11 @@ class Token {
      */
     static verifyToken(token) {
         try {
-            const data = this.jsonwebtoken.verify(token, this.key)
+            const data = Token.jsonwebtoken.verify(token, Token.key)
 
             let userId = data.userId, userKey = data.userKey
 
-            if (this.verifyUserKey(userId, userKey)) {
+            if (Token._verifyUserKey_(userId, userKey)) {
                 return userId
             }
             return -1
@@ -128,9 +128,9 @@ class Token {
             backVal = false
         }
         else {
-            this.userInfoArr.forEach((item, index) => {
+            Token.userInfoArr.forEach((item, index) => {
                 if (item.userId === userAccount) {
-                    this.userInfoArr.splice(index, 1)
+                    Token.userInfoArr.splice(index, 1)
                     backVal = true
                 }
             })
@@ -140,4 +140,8 @@ class Token {
     }
 }
 
-module.exports = Token
+module.exports = {
+    createToken: Token.createToken,
+    verifyToken: Token.verifyToken,
+    deleteUserInfo: Token.deleteUserInfo
+}

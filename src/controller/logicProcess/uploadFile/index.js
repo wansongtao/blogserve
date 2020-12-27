@@ -76,5 +76,7 @@ class UploadFile {
     }
 }
 
-module.exports = UploadFile
+module.exports = {
+    uploadImage: UploadFile.uploadImage
+}
 

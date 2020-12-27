@@ -236,10 +236,11 @@ class Users {
             personalDes,
             lifeMotto
         } = userInfo,
-        isSuccess = await Users.database.update(sqlStr, [userName, userGender, avatar, birthday.substr(0, 10), 
-            weChat, qqAcc, email, hobby.join('/'), personalDes, lifeMotto, 0, userAccount]),
+        isSuccess = await Users.database.update(sqlStr, [userName, userGender, avatar, birthday.substr(0, 10),
+                weChat, qqAcc, email, hobby.join('/'), personalDes, lifeMotto, 0, userAccount
+            ]),
             message = {}
-            
+
         if (isSuccess) {
             message = {
                 code: 200,
@@ -260,4 +261,9 @@ class Users {
     }
 }
 
-module.exports = Users
+module.exports = {
+    queryUser: Users.queryUser,
+    queryUserInfo: Users.queryUserInfo,
+    clearTokenUserInfo: Users.clearTokenUserInfo,
+    updateUserInfo: Users.updateUserInfo
+}

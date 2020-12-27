@@ -141,4 +141,4 @@ class Database {
   }
 }
 
-module.exports = Database
+module.exports = {query: Database.query, update: Database.update}

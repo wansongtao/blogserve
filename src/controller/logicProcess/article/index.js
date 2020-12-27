@@ -44,4 +44,6 @@ class Article {
     }
 }
 
-module.exports = Article
+module.exports = {
+    getArticleCategory: Article.getArticleCategory
+}
