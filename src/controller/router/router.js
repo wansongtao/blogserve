@@ -33,6 +33,9 @@ class Router {
 
     // 获取文章分类
     this.myRouter.get('/admin/getcategory', process.getCategory)
+
+    // 添加文章接口
+    this.myRouter.post('/admin/addarticle', process.addArticle)
   }
 
   /**

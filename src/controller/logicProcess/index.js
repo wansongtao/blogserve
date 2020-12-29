@@ -184,8 +184,8 @@ class Process {
             success: false
         }
 
-        let userAccount = Process._verifyToken_(req), 
-        userInfo = req.body;
+        let userAccount = Process._verifyToken_(req),
+            userInfo = req.body;
 
         message = await Process._backTokenProcess_(Process.users.updateUserInfo, {
             userAccount,
@@ -210,11 +210,35 @@ class Process {
 
         let userAccount = Process._verifyToken_(req)
 
-        message = await Process._backTokenProcess_(Process.article.getArticleCategory, {userAccount})
+        message = await Process._backTokenProcess_(Process.article.getArticleCategory, {
+            userAccount
+        })
 
         res.send(message)
     }
 
+    /**
+     * @description 添加文章
+     * @param {*} req 
+     * @param {*} res 
+     */
+    static async addArticle(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        let userAccount = Process._verifyToken_(req)
+
+        message = await Process._backTokenProcess_(Process.article.addArticle, {
+            userAccount,
+            params: req.body
+        })
+
+        res.send(message)
+    }
 }
 
 module.exports = {
@@ -223,5 +247,6 @@ module.exports = {
     logout: Process.logout,
     uploadImg: Process.uploadImg,
     editUserInfo: Process.editUserInfo,
-    getCategory: Process.getCategory
+    getCategory: Process.getCategory,
+    addArticle: Process.addArticle
 }
