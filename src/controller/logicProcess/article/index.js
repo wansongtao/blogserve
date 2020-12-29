@@ -42,6 +42,8 @@ class Article {
 
         return message
     }
+
+    
 }
 
 module.exports = {

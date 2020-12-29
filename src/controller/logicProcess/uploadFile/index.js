@@ -74,9 +74,9 @@ class UploadFile {
             });
         })
     }
+    
 }
 
 module.exports = {
     uploadImage: UploadFile.uploadImage
 }
-

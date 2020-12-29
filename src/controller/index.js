@@ -59,7 +59,9 @@ class Index {
         message: '路径错误，找不到资源'
       })
     })
+
   }
+  
 }
 
 new Index()

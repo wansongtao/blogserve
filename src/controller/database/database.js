@@ -139,6 +139,8 @@ class Database {
         return false
       })
   }
+
+  
 }
 
 module.exports = {query: Database.query, update: Database.update}
