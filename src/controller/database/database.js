@@ -248,6 +248,11 @@ class Database {
       })
   }
 
+  /**
+   * @description 插入文章
+   * @param {Object} data 要插入sql语句中的值{articleTitle,articleContent,ADDACC,ADDTIME,categoryId}
+   * @returns {Promise} 成功返回true，失败返回false
+   */
   static async insertArticle(data) {
     try {
       let conn = await Database._getConn_()
@@ -262,15 +267,17 @@ class Database {
           ADDACC,
           ADDTIME,
           categoryId
-        } = data;
+        } = data,
+        params = {
+          articleTitle,
+          articleContent,
+          ADDACC,
+          ADDTIME
+        };
 
-      let result = await Database._transactionExecuteSql_(conn, sqlStr, {
-        articleTitle,
-        articleImgUrl,
-        articleContent,
-        ADDACC,
-        ADDTIME
-      })
+      articleImgUrl ? params.articleImgUrl = articleImgUrl : '';
+
+      let result = await Database._transactionExecuteSql_(conn, sqlStr, params)
 
       sqlStr = 'INSERT INTO articletype set ?'
 
@@ -287,6 +294,8 @@ class Database {
       return false
     }
   }
+
+  
 }
 
 module.exports = {

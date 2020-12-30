@@ -88,20 +88,17 @@ class Article {
             value: articleTitle,
             type: 'string'
         }, {
-            value: articleImgUrl,
-            type: 'string'
-        }, {
             value: articleContent,
             type: 'string'
         }, {
             value: categoryId,
-            type: 'string'
+            type: 'number'
         }])
 
         if (isVerify) {
             let curDate = new Date()
 
-            curDate = curDate.toISOString().replace(/[TZ]/, ' ')
+            curDate = curDate.toISOString().substr(0, 19).replace(/[TZ]/, ' ')
 
             let result = Article.database.insertArticle({
                 articleTitle,
@@ -115,10 +112,8 @@ class Article {
             if (result) {
                 message = {
                     code: 200,
-                    data: {
-                        categories: data
-                    },
-                    message: '获取成功',
+                    data: {},
+                    message: '添加成功',
                     success: true
                 }
             }
