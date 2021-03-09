@@ -239,6 +239,29 @@ class Process {
 
         res.send(message)
     }
+
+    /**
+     * @description 获取文章信息
+     * @param {*} req 
+     * @param {*} res 
+     */
+    static async getArticleInfo(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        let userAccount = Process._verifyToken_(req)
+
+        message = await Process._backTokenProcess_(Process.article.addArticle, {
+            userAccount,
+            params: req.body
+        })
+
+        res.send(message)
+    }
 }
 
 module.exports = {
@@ -248,5 +271,6 @@ module.exports = {
     uploadImg: Process.uploadImg,
     editUserInfo: Process.editUserInfo,
     getCategory: Process.getCategory,
-    addArticle: Process.addArticle
+    addArticle: Process.addArticle,
+    getArticleInfo: Process.getArticleInfo
 }

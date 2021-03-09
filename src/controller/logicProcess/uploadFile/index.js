@@ -9,7 +9,7 @@ class UploadFile {
 
     /**
      * @description 将用户上传的照片存入磁盘
-     * @param {*} req 
+     * @param {*} req 请求对象
      * @returns {Promise} {success: true,statusCode: 200,data: {imgUrl: pathName},message: '上传成功'}
      */
     static uploadImage({req}) {

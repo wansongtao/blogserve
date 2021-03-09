@@ -130,7 +130,7 @@ class Article {
         return message
     }
 
-
+    static async 
 }
 
 module.exports = {
