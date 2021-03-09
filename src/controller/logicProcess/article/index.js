@@ -134,7 +134,7 @@ class Article {
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
     static async queryArticle() {
-        let queryStr = 'SELECT articleId, articleTitle, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ?'
+        let queryStr = 'SELECT articleId, articleTitle, articleContent, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ?'
 
         let data = await Article.database.query(queryStr, [0]),
             message = {}
@@ -143,7 +143,7 @@ class Article {
             message = {
                 code: 200,
                 data: {
-                    categories: data
+                    articles: data
                 },
                 message: '获取成功',
                 success: true
