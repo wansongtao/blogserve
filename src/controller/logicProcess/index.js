@@ -241,7 +241,7 @@ class Process {
     }
 
     /**
-     * @description 获取文章信息
+     * @description 获取所有文章信息
      * @param {*} req 
      * @param {*} res 
      */
@@ -255,7 +255,7 @@ class Process {
 
         let userAccount = Process._verifyToken_(req)
 
-        message = await Process._backTokenProcess_(Process.article.addArticle, {
+        message = await Process._backTokenProcess_(Process.article.queryArticle, {
             userAccount,
             params: req.body
         })

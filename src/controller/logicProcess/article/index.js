@@ -116,8 +116,7 @@ class Article {
                     message: '添加成功',
                     success: true
                 }
-            }
-            else {
+            } else {
                 message = {
                     code: 401,
                     data: {},
@@ -130,10 +129,47 @@ class Article {
         return message
     }
 
-    static async 
+    /**
+     * @description 查询所有文章
+     * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
+     */
+    static async queryArticle() {
+        let queryStr = 'SELECT articleId, articleTitle, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ?'
+
+        let data = await Article.database.query(queryStr, [0]),
+            message = {}
+
+        if (data[0]) {
+            message = {
+                code: 200,
+                data: {
+                    categories: data
+                },
+                message: '获取成功',
+                success: true
+            }
+        } else if (data[0] == null) {
+            message = {
+                code: 302,
+                data: {},
+                message: '未查找到任何分类',
+                success: false
+            }
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            }
+        }
+
+        return message
+    }
 }
 
 module.exports = {
     getArticleCategory: Article.getArticleCategory,
-    addArticle: Article.addArticle
+    addArticle: Article.addArticle,
+    queryArticle: Article.queryArticle
 }
