@@ -2,9 +2,9 @@
   "name": "blogserve",
   "version": "1.0.0",
   "description": "个人博客后端",
-  "main": "./src/controller/index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "node src/controller/index.js"
+    "test": "node app.js"
   },
   "keywords": [],
   "license": "MIT",

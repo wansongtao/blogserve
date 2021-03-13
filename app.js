@@ -8,7 +8,7 @@ class Index {
     //   引入模块
     const express = require('express')
     const bodyParser = require('body-parser')
-    const router = require('./src/controller/router/router')
+    const router = require('./src/router/router')
     const cookieParser = require('cookie-parser')
 
     // 创建express实例
