@@ -133,17 +133,53 @@ class Article {
      * @description 查询所有文章
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
-    static async queryArticle() {
-        let queryStr = 'SELECT articleId, articleTitle, articleContent, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ?'
+    static async queryArticleList({currentPage = 1, pageSize = 10}) {
+        // 查询文章数量
+        const queryNumber = 'select count(articleId) as articleCount from articleinfo where isdelete = ?'
+        let count = await Article.database.query(queryNumber, [0])
+        
+        if (count !== false) {
+            count = count[0].articleCount
+        }
 
-        let data = await Article.database.query(queryStr, [0]),
+        // 查询对应页码的文章
+        if (isNaN(Number(currentPage))) {
+            // 当前页码不为数字，则默认第一页
+            currentPage = 1
+        }
+        else {
+            // 转为正整数
+            currentPage = Math.abs(currentPage.toFixed())
+        }
+
+        if (isNaN(Number(pageSize))) {
+            // 每页大小不为数字，则默认每页十条
+            pageSize = 10
+        }
+        else {
+            // 转为正整数
+            pageSize = Math.abs(pageSize.toFixed())
+        }
+
+        if ((currentPage - 1) * pageSize > count) {
+            // 在当前页码超出范围时，设为默认值
+            currentPage = 1
+            pageSize = 10
+        }
+
+        // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
+        const queryStr = `SELECT articleId, articleTitle, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ? 
+         ORDER BY ADDTIME DESC limit ? offset ?`
+
+        let data = await Article.database.query(queryStr, [0, pageSize, (currentPage - 1) * pageSize]),
             message = {}
 
         if (data[0]) {
             message = {
                 code: 200,
                 data: {
-                    articles: data
+                    articles: data,
+                    count
                 },
                 message: '获取成功',
                 success: true
@@ -152,7 +188,54 @@ class Article {
             message = {
                 code: 302,
                 data: {},
-                message: '未查找到任何分类',
+                message: '文章列表获取失败',
+                success: false
+            }
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            }
+        }
+
+        return message
+    }
+
+    /**
+     * @description 获取文章内容
+     * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
+     */
+    static async queryArticleContent({id}) {
+        if (isNaN(Number(id))) {
+            return {
+                code: 300,
+                data: {},
+                message: '参数错误',
+                success: false
+            }
+        }
+
+        let queryStr = 'SELECT articleContent from articleinfo WHERE ISDELETE = ? and articleId = ?'
+
+        let data = await Article.database.query(queryStr, [0, id]),
+            message = {}
+
+        if (data[0]) {
+            message = {
+                code: 200,
+                data: {
+                    articleContent: data[0].articleContent
+                },
+                message: '获取成功',
+                success: true
+            }
+        } else if (data[0] == null) {
+            message = {
+                code: 302,
+                data: {},
+                message: '未查找到该文章',
                 success: false
             }
         } else {
@@ -171,5 +254,6 @@ class Article {
 module.exports = {
     getArticleCategory: Article.getArticleCategory,
     addArticle: Article.addArticle,
-    queryArticle: Article.queryArticle
+    queryArticleList: Article.queryArticleList,
+    queryArticleContent: Article.queryArticleContent
 }

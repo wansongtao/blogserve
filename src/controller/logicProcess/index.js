@@ -241,11 +241,11 @@ class Process {
     }
 
     /**
-     * @description 获取所有文章信息
+     * @description 获取文章列表
      * @param {*} req 
      * @param {*} res 
      */
-    static async getArticleInfo(req, res) {
+    static async getArticleList(req, res) {
         let message = {
             code: 444,
             data: {},
@@ -255,9 +255,32 @@ class Process {
 
         let userAccount = Process._verifyToken_(req)
 
-        message = await Process._backTokenProcess_(Process.article.queryArticle, {
+        message = await Process._backTokenProcess_(Process.article.queryArticleList, {
             userAccount,
-            params: req.body
+            params: req.query
+        })
+
+        res.send(message)
+    }
+
+    /**
+     * @description 获取文章内容
+     * @param {*} req 
+     * @param {*} res 
+     */
+     static async queryArticleContent(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        let userAccount = Process._verifyToken_(req)
+
+        message = await Process._backTokenProcess_(Process.article.queryArticleContent, {
+            userAccount,
+            id: req.query.id
         })
 
         res.send(message)
@@ -272,5 +295,6 @@ module.exports = {
     editUserInfo: Process.editUserInfo,
     getCategory: Process.getCategory,
     addArticle: Process.addArticle,
-    getArticleInfo: Process.getArticleInfo
+    getArticleList: Process.getArticleList,
+    queryArticleContent: Process.queryArticleContent
 }
