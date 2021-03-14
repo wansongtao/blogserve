@@ -133,7 +133,9 @@ class Article {
      * @description 查询所有文章
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
-    static async queryArticleList({currentPage = 1, pageSize = 10}) {
+    static async queryArticleList(search) {
+        let {currentPage, pageSize} = search.params
+
         // 查询文章数量
         const queryNumber = 'select count(articleId) as articleCount from articleinfo where isdelete = ?'
         let count = await Article.database.query(queryNumber, [0])
@@ -141,7 +143,7 @@ class Article {
         if (count !== false) {
             count = count[0].articleCount
         }
-
+        
         // 查询对应页码的文章
         if (isNaN(Number(currentPage))) {
             // 当前页码不为数字，则默认第一页
@@ -149,7 +151,7 @@ class Article {
         }
         else {
             // 转为正整数
-            currentPage = Math.abs(currentPage.toFixed())
+            currentPage = Math.abs(currentPage).toFixed()
         }
 
         if (isNaN(Number(pageSize))) {
@@ -158,7 +160,7 @@ class Article {
         }
         else {
             // 转为正整数
-            pageSize = Math.abs(pageSize.toFixed())
+            pageSize = Math.abs(pageSize).toFixed()
         }
 
         if ((currentPage - 1) * pageSize > count) {
@@ -169,9 +171,9 @@ class Article {
 
         // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
         const queryStr = `SELECT articleId, articleTitle, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ? 
-         ORDER BY ADDTIME DESC limit ? offset ?`
+         ORDER BY ADDTIME DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`
 
-        let data = await Article.database.query(queryStr, [0, pageSize, (currentPage - 1) * pageSize]),
+        let data = await Article.database.query(queryStr, [0]),
             message = {}
 
         if (data[0]) {
@@ -217,7 +219,7 @@ class Article {
             }
         }
 
-        id = Math.abs(id.toFixed())
+        id = Math.abs(id).toFixed()
         let queryStr = 'SELECT articleContent from articleinfo WHERE ISDELETE = ? and articleId = ?'
 
         let data = await Article.database.query(queryStr, [0, id]),
