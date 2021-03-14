@@ -242,7 +242,7 @@ class Process {
 
     /**
      * @description 获取文章列表
-     * @param {*} req 
+     * @param {*} req {currentPage, pageSize}
      * @param {*} res 
      */
     static async getArticleList(req, res) {
@@ -265,10 +265,33 @@ class Process {
 
     /**
      * @description 获取文章内容
-     * @param {*} req 
+     * @param {*} req {id: 文章id}
      * @param {*} res 
      */
-     static async queryArticleContent(req, res) {
+    static async queryArticleContent(req, res) {
+        let message = {
+            code: 444,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        }
+
+        let userAccount = Process._verifyToken_(req)
+        
+        message = await Process._backTokenProcess_(Process.article.queryArticleContent, {
+            userAccount,
+            id: req.query.id
+        })
+
+        res.send(message)
+    }
+
+    /**
+     * @description 删除文章
+     * @param {*} req {id: 文章id}
+     * @param {*} res 
+     */
+    static async delArticle(req, res) {
         let message = {
             code: 444,
             data: {},
@@ -278,7 +301,7 @@ class Process {
 
         let userAccount = Process._verifyToken_(req)
 
-        message = await Process._backTokenProcess_(Process.article.queryArticleContent, {
+        message = await Process._backTokenProcess_(Process.article.delArticle, {
             userAccount,
             id: req.query.id
         })
@@ -296,5 +319,6 @@ module.exports = {
     getCategory: Process.getCategory,
     addArticle: Process.addArticle,
     getArticleList: Process.getArticleList,
-    queryArticleContent: Process.queryArticleContent
+    queryArticleContent: Process.queryArticleContent,
+    delArticle: Process.delArticle
 }

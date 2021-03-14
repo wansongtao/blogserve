@@ -134,22 +134,24 @@ class Article {
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
     static async queryArticleList(search) {
-        let {currentPage, pageSize} = search.params
+        let {
+            currentPage,
+            pageSize
+        } = search.params
 
         // 查询文章数量
         const queryNumber = 'select count(articleId) as articleCount from articleinfo where isdelete = ?'
         let count = await Article.database.query(queryNumber, [0])
-        
+
         if (count !== false) {
             count = count[0].articleCount
         }
-        
+
         // 查询对应页码的文章
         if (isNaN(Number(currentPage))) {
             // 当前页码不为数字，则默认第一页
             currentPage = 1
-        }
-        else {
+        } else {
             // 转为正整数
             currentPage = Math.abs(currentPage).toFixed()
         }
@@ -157,8 +159,7 @@ class Article {
         if (isNaN(Number(pageSize))) {
             // 每页大小不为数字，则默认每页十条
             pageSize = 10
-        }
-        else {
+        } else {
             // 转为正整数
             pageSize = Math.abs(pageSize).toFixed()
         }
@@ -209,7 +210,9 @@ class Article {
      * @description 获取文章内容
      * @returns {object} {code: 200, data: {}, message: '', success: true}
      */
-    static async queryArticleContent({id}) {
+    static async queryArticleContent({
+        id
+    }) {
         if (isNaN(Number(id))) {
             return {
                 code: 300,
@@ -252,11 +255,57 @@ class Article {
 
         return message
     }
+
+    /**
+     * @description 删除文章
+     * @returns {object} {code: 200, data: {}, message: '', success: true}
+     */
+    static async delArticle({
+        id, userAccount
+    }) {
+        if (isNaN(Number(id))) {
+            return {
+                code: 300,
+                data: {},
+                message: '参数错误',
+                success: false
+            }
+        }
+
+        id = Math.abs(id).toFixed()
+        let delTime = new Date().toISOString()
+        delTime = delTime.replace(/T|Z/g, ' ').substr(0, 19)
+        
+        let queryStr = 'UPDATE articleinfo SET DELETEACC = ?, DELETETIME = ?, ISDELETE = ? WHERE articleId = ?'
+
+        let data = await Article.database.update(queryStr, [userAccount, delTime, 1, id]),
+            message = {}
+
+        if (data) {
+            message = {
+                code: 200,
+                data: {},
+                message: '删除成功',
+                success: true
+            }
+        }
+        else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            }
+        }
+
+        return message
+    }
 }
 
 module.exports = {
     getArticleCategory: Article.getArticleCategory,
     addArticle: Article.addArticle,
     queryArticleList: Article.queryArticleList,
-    queryArticleContent: Article.queryArticleContent
+    queryArticleContent: Article.queryArticleContent,
+    delArticle: Article.delArticle
 }
