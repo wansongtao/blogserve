@@ -139,13 +139,22 @@ class Users {
             message = {}
 
         if (data[0]) {
+            // mysql的一个bug：数据库里存的为五月四号但查询出来的为五月三号（date类型）
+            let birthday = null
+            if (data[0].birthday != undefined) {
+                birthday = new Date(data[0].birthday)
+                birthday = birthday.setDate(birthday.getDate() + 1)
+                birthday = new Date(birthday).toISOString()
+                birthday = birthday.substr(0, 10)
+            }
+
             message = {
                 code: 200,
                 data: {
                     name: data[0].userName,
                     userGender: data[0].userGender,
                     avatar: data[0].userImgUrl,
-                    birthday: data[0].birthday,
+                    birthday: birthday,
                     weChat: data[0].weChat,
                     qqAcc: data[0].qqAcc,
                     email: data[0].email,

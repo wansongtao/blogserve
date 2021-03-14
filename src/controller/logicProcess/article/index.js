@@ -205,7 +205,7 @@ class Article {
 
     /**
      * @description 获取文章内容
-     * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
+     * @returns {object} {code: 200, data: {}, message: '', success: true}
      */
     static async queryArticleContent({id}) {
         if (isNaN(Number(id))) {
@@ -217,6 +217,7 @@ class Article {
             }
         }
 
+        id = Math.abs(id.toFixed())
         let queryStr = 'SELECT articleContent from articleinfo WHERE ISDELETE = ? and articleId = ?'
 
         let data = await Article.database.query(queryStr, [0, id]),
