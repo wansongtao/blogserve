@@ -4,15 +4,17 @@
  * @date 2020-12-08
  */
 class Database {
+  // 引入MySQL模块
   static mysql = require('mysql')
 
+  // 创建连接池
   static pool = this.mysql.createPool({
     connectionLimit: 88,
     host: '127.0.0.1',
     user: 'root',
     password: 'password',
     database: 'blog'
-  })
+  });
 
   /**
    * @description 验证参数的类型是否正确

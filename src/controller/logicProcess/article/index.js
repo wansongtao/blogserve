@@ -4,7 +4,7 @@
  * @date 2020-12-27
  */
 class Article {
-    static database = require('../../database/database')
+    static database = require('../../../database/database')
 
     /**
      * @description 验证参数的类型是否正确

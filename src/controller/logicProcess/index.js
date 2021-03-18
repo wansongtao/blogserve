@@ -5,7 +5,7 @@
  */
 class Process {
     static users = require('./users')
-    static token = require('../token')
+    static token = require('../../token')
     static uploadFile = require('./uploadFile')
     static article = require('./article')
 
