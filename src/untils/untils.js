@@ -12,6 +12,7 @@ class Untils {
      */
     static verifyParams(param = []) {
         let backVal = false;
+        // 可验证的数据类型
         const typeArr = ['number', 'string', 'boolean', 'object', 'array', 'function'];
 
         try {
@@ -19,11 +20,13 @@ class Untils {
                 const type = item.type.toLowerCase();
                 let tempVal = false;
 
+                // 判断要验证的数据类型是否在范围内
                 if (typeArr.indexOf(type) === -1) {
                     console.error('untils.js => verifyParams(): 未知的数据类型');
                     return tempVal;
                 }
 
+                // 复杂数据类型使用instanceof判断，简单数据类型使用typeof判断。因为数组和函数也是Object类型，所以将object放这两个后面判断。
                 if (type === 'array') {
                     if (item.value instanceof Array) {
                         tempVal = true;
