@@ -5,7 +5,9 @@
  */
 class Database {
   // 引入MySQL模块
-  static mysql = require('mysql')
+  static mysql = require('mysql');
+  // 引入工具类
+  static untils = require('../untils/untils');
 
   // 创建连接池
   static pool = this.mysql.createPool({
@@ -15,24 +17,6 @@ class Database {
     password: 'password',
     database: 'blog'
   });
-
-  /**
-   * @description 验证参数的类型是否正确
-   * @param {Array} param [{value: value, type: argumentType}
-   * @returns {boolean} 通过返回true
-   */
-  static _verifyParam_(param = []) {
-    try {
-      return param.every(item => {
-        let type = item.type.toUpperCase()
-
-        return item.value.constructor.toString().toUpperCase().indexOf(type) > -1
-      })
-    } catch (ex) {
-      console.error('Class Database => _verifyParam_(): ', ex.message)
-      return false
-    }
-  }
 
   /**
    * @description 从连接池中获取数据库连接
@@ -159,25 +143,25 @@ class Database {
    */
   static async query(sqlStr, data) {
     return new Promise((resolve, reject) => {
-        let isVerify = Database._verifyParam_([{
+        const isVerify = Database.untils.verifyParams([{
           value: sqlStr,
           type: 'String'
         }, {
           value: data,
           type: 'Array'
-        }])
+        }]);
 
-        isVerify ? resolve() : reject('参数类型错误')
+        isVerify ? resolve() : reject('参数类型错误');
       })
       .then(() => {
-        return Database._getConn_()
+        return Database._getConn_();
       })
       .then(conn => {
-        return Database._executeSql_(conn, sqlStr, data)
+        return Database._executeSql_(conn, sqlStr, data);
       })
       .catch(err => {
-        console.error('Class Database => query(): ', err)
-        return false
+        console.error('Class Database => query(): ', err);
+        return false;
       })
   }
 
@@ -189,30 +173,30 @@ class Database {
    */
   static async update(sqlStr, data) {
     return new Promise((resolve, reject) => {
-        let isVerify = Database._verifyParam_([{
+        const isVerify = Database.untils.verifyParams([{
           value: sqlStr,
           type: 'String'
         }, {
           value: data,
           type: 'Array'
-        }])
+        }]);
 
-        isVerify ? resolve() : reject('arguments type error')
+        isVerify ? resolve() : reject('arguments type error');
       })
       .then(() => {
-        return Database._getConn_()
+        return Database._getConn_();
       })
       .then(async (conn) => {
-        let result = await Database._executeSql_(conn, sqlStr, data)
+        const result = await Database._executeSql_(conn, sqlStr, data);
 
         return new Promise((resolve, reject) => {
-          result.affectedRows > 0 ? resolve(true) : reject(false)
-        })
+          result.affectedRows > 0 ? resolve(true) : reject(false);
+        });
       })
       .catch(err => {
-        console.error('Class Database => query(): ', err)
-        return false
-      })
+        console.error('Class Database => query(): ', err);
+        return false;
+      });
   }
 
   /**
@@ -223,30 +207,30 @@ class Database {
    */
   static async insert(sqlStr, data) {
     return new Promise((resolve, reject) => {
-        let isVerify = Database._verifyParam_([{
+        const isVerify = Database.untils.verifyParams([{
           value: sqlStr,
           type: 'String'
         }, {
           value: data,
           type: 'Object'
-        }])
+        }]);
 
-        isVerify ? resolve() : reject('arguments type error')
+        isVerify ? resolve() : reject('arguments type error');
       })
       .then(() => {
-        return Database._getConn_()
+        return Database._getConn_();
       })
       .then(async (conn) => {
-        let result = await Database._executeSql_(conn, sqlStr, data)
+        const result = await Database._executeSql_(conn, sqlStr, data);
 
         return new Promise((resolve, reject) => {
           // 插入成功后判断受影响的行数
-          results.affectedRows > 0 ? resolve(true) : reject(false)
+          result.affectedRows > 0 ? resolve(true) : reject(false);
         })
       })
       .catch(err => {
-        console.error('Class Database => insert(): ', err)
-        return false
+        console.error('Class Database => insert(): ', err);
+        return false;
       })
   }
 
@@ -297,7 +281,6 @@ class Database {
     }
   }
 
-  
 }
 
 module.exports = {
