@@ -165,31 +165,30 @@ class Users {
     }
 
     /**
-     * @description 删除保存的用户登录信息
+     * @description 删除用户登录信息
      * @param {string} userAccount 用户账号
-     * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
+     * @returns {object} {code: 200, data: {}, message: '退出登录成功', success: true}
      */
-    static async clearTokenUserInfo({
-        userAccount
-    }) {
-        let message = {}
+    static async clearTokenUserInfo(userAccount) {
+        let message = {};
+        
         if (Users.token.deleteUserInfo(userAccount)) {
             message = {
                 code: 200,
                 data: {},
                 message: '退出登录成功',
                 success: true
-            }
+            };
         } else {
             message = {
-                code: 201,
+                code: 502,
                 data: {},
-                message: '删除用户的登录信息失败',
-                success: true
-            }
+                message: '退出登录失败',
+                success: false
+            };
         }
 
-        return message
+        return message;
     }
 
     /**
