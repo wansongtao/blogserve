@@ -8,28 +8,28 @@ class UploadFile {
     static path = require('path')
 
     /**
-     * @description 将用户上传的照片存入磁盘
+     * @description 保存图片
      * @param {*} req 请求对象
-     * @returns {Promise} {success: true,statusCode: 200,data: {imgUrl: pathName},message: '上传成功'}
+     * @returns {Promise} {success: true,code: 200,data: {imgUrl: pathName},message: '上传成功'}
      */
-    static uploadImage({req}) {
+    static saveImage(req) {
         return new Promise((resolve, reject) => {
-            const form = new UploadFile.formidable()
+            const form = new UploadFile.formidable();
 
             // 设置表单域的编码
-            form.encoding = 'utf-8'
+            form.encoding = 'utf-8';
 
             // 设置上传文件存放的文件夹路径
-            form.uploadDir = UploadFile.path.join(__dirname, '../../../upload')
+            form.uploadDir = UploadFile.path.join(__dirname, '../../../upload');
 
             // 保留上传文件的后缀名
-            form.keepExtensions = true
+            form.keepExtensions = true;
 
             // 设置字段的大小
-            form.maxFieldsSize = 0.5 * 1024 * 1024
+            form.maxFieldsSize = 0.5 * 1024 * 1024;
 
             // 设置上传文件的大小，500kb
-            form.maxFileSize = 0.5 * 1024 * 1024
+            form.maxFileSize = 0.5 * 1024 * 1024;
 
             form.onPart = (part) => {
                 // 必须要调用form.parse(req, callback)方法 form.parse(req) => form.onPart() => form.parse()的回调callback
@@ -40,7 +40,7 @@ class UploadFile {
                 } else {
                     reject({
                         success: false,
-                        statusCode: 303,
+                        code: 303,
                         data: {},
                         message: '只能上传照片'
                     });
@@ -52,10 +52,10 @@ class UploadFile {
                     console.error('Class UploadFile => uploadImage() => form.parse(): ', err)
                     reject({
                         success: false,
-                        statusCode: 304,
+                        code: 304,
                         data: {},
                         message: '图片上传错误'
-                    })
+                    });
                 } else {
                     // 如果用户上传的不是照片，files为空对象 => {}
                     if (files.file !== undefined) {
@@ -63,7 +63,7 @@ class UploadFile {
 
                         resolve({
                             success: true,
-                            statusCode: 200,
+                            code: 200,
                             data: {
                                 imgUrl: pathName
                             },
@@ -72,11 +72,11 @@ class UploadFile {
                     }
                 }
             });
-        })
+        });
     }
     
 }
 
 module.exports = {
-    uploadImage: UploadFile.uploadImage
+    saveImage: UploadFile.saveImage
 }
