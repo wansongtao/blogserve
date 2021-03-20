@@ -15,10 +15,10 @@ class Token {
 
     /**
      * @description 将用户账号和用户标识码保存起来
-     * @param {number} userId 用户账号
+     * @param {number} userAccount 用户账号
      * @param {string} userKey 用户登录时，生成的唯一标识码
      */
-    static _userInfo_(userId, userKey) {
+    static _userInfo_(userAccount, userKey) {
         let userInfoArr = Token.userInfoArr;
 
         if (userInfoArr.length > 0) {
@@ -26,7 +26,7 @@ class Token {
 
             userInfoArr.forEach(item => {
                 // 如果该用户的信息已经存在了，则替换userKey的值
-                if (item.userId === userId) {
+                if (item.userAccount === userAccount) {
                     item.userKey = userKey;
                     isSame = true;
                 }
@@ -35,13 +35,13 @@ class Token {
             //如果不存在，则推入
             if (!isSame) {
                 userInfoArr.push({
-                    userId,
+                    userAccount,
                     userKey
                 });
             }
         } else {
             userInfoArr = [{
-                userId,
+                userAccount,
                 userKey
             }];
         }
@@ -51,13 +51,13 @@ class Token {
 
     /**
      * @description 验证用户的唯一标识码（实现单点登录）
-     * @param {string} userId 用户账号
+     * @param {string} userAccount 用户账号
      * @param {string} userKey 
      * @returns 通过返回true，否则返回false
      */
-    static _verifyUserKey_(userId, userKey) {
+    static _verifyUserKey_(userAccount, userKey) {
         return Token.userInfoArr.some(item => {
-            if (item.userId === userId && item.userKey === userKey) {
+            if (item.userAccount === userAccount && item.userKey === userKey) {
                 return true;
             }
 
@@ -67,10 +67,10 @@ class Token {
 
     /**
      * @description 创建token
-     * @param {string} userId 用户账号 
+     * @param {string} userAccount 用户账号 
      * @returns 返回token或false
      */
-    static createToken(userId) {
+    static createToken(userAccount) {
         try {
             //生成一个用户标识码
             const num1 = Math.ceil(Math.random() * 10000 + 1000);
@@ -79,14 +79,14 @@ class Token {
 
             // 生成token，将用户账号和唯一标识码存入其中，设置过期时间2h
             const token = Token.jsonwebtoken.sign({
-                userId,
+                userAccount,
                 userKey
             }, Token.key, {
                 expiresIn: '2h'
             });
 
             // 保存用户登录信息
-            Token._userInfo_(userId, userKey);
+            Token._userInfo_(userAccount, userKey);
 
             return token;
         } catch (ex) {
@@ -98,9 +98,11 @@ class Token {
     /**
      * @description 验证token
      * @param {string} token token字符串
-     * @returns 验证通过返回用户账号，超时返回0，token错误返回-1
+     * @returns 验证通过返回用户账号，超时返回0，用户在其他地方登录了返回-1，token错误返回-2
      */
     static verifyToken(token) {
+        let backVal = -2;
+
         try {
             // 验证token，并从中取出保存的信息(用户账户，用户唯一标识码)
             const data = Token.jsonwebtoken.verify(token, Token.key);
@@ -108,14 +110,25 @@ class Token {
 
             // 验证用户唯一标识码
             if (Token._verifyUserKey_(userAccount, userKey)) {
-                return userAccount;
+                backVal = userAccount;
             }
-
-            return -1;
+            else {
+                backVal = -1;
+            }
         }
         catch(ex) {
             console.error('Class Token => verifyToken(): ', ex.message);
-            return 0;
+
+            // jwt expired：超时错误
+            if (ex.message === 'jwt expired') {
+                backVal = 0;
+            } else {
+                // token错误
+                backVal = -2;
+            }
+        }
+        finally {
+            return backVal;
         }
     }
 
@@ -133,7 +146,7 @@ class Token {
         }
         else {
             Token.userInfoArr.forEach((item, index) => {
-                if (item.userId === userAccount) {
+                if (item.userAccount === userAccount) {
                     Token.userInfoArr.splice(index, 1);
                     backVal = true;
                 }
