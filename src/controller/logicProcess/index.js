@@ -4,10 +4,11 @@
  * @date 2020-12-08
  */
 class Process {
-    static users = require('./users')
-    static token = require('../../token')
-    static uploadFile = require('./uploadFile')
-    static article = require('./article')
+    static users = require('./users');
+    static token = require('../../token');
+    static uploadFile = require('./uploadFile');
+    static article = require('./article');
+    static untils = require('../../untils/untils');
 
     /**
      * @description 验证token
@@ -88,20 +89,59 @@ class Process {
 
     /**
      * @description 用户登录
-     * @param {*} req 
+     * @param {*} req 请求参数：{userAccount, userPassword}
      * @param {*} res 
      */
     static async login(req, res) {
-        let message = {
-            code: 500,
-            data: {},
-            message: '服务器繁忙，请稍后再试',
-            success: false
+        const {userAccount, userPassword} = req.body;
+
+        // 验证账号密码的数据类型
+        const isVerify = Process.untils.verifyParams([{
+            value: userAccount,
+            type: 'string'
+        }, {
+            value: userPassword,
+            type: 'string'
+        }]);
+
+        // 类型错误，直接返回信息
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '请求参数类型错误',
+                success: false
+            });
+            return;
         }
 
-        message = await Process.users.queryUser(req.body)
+        // 验证账号密码的格式
+        const isFormat = Process.untils.verifyFormat([
+            {
+                value: userAccount,
+                regExp: /^[a-zA-Z][\w]{1,5}$/
+            },
+            {
+                value: userPassword,
+                regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
+            }
+        ]);
 
-        res.send(message)
+        // 格式错误，直接返回信息
+        if (!isFormat) {
+            res.send({
+                code: 302,
+                data: {},
+                message: '账号或密码格式错误',
+                success: false
+            });
+            return;
+        }
+
+        // 查询是否有该用户，密码是否正确
+        const message = await Process.users.queryUser({userAccount, userPassword});
+
+        res.send(message);
     }
 
     /**
