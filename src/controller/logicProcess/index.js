@@ -11,27 +11,31 @@ class Process {
     static untils = require('../../untils/untils');
 
     /**
-     * @description 验证token
+     * @description 验证token，取出用户账号
      * @param {*} req 
      * @returns 通过返回用户账号, 获取token失败返回-2，token超时返回0，token错误返回-1
      */
     static _verifyToken_(req) {
-        let token = ''
+        let token = '';
 
         if (req.query.token != undefined) {
-            token = req.query.token
+            // 如果传了token参数，则直接获取token的值。
+            token = req.query.token;
         } else if (req.headers.authorization != undefined) {
-            token = req.headers.authorization
+            // 如果没有传token参数，则从请求头里获取token字符串。
+            token = req.headers.authorization;
         } else if (req.cookies.authorization != undefined) {
-            token = req.cookies.authorization
+            // 如果请求头里也没有token，则从cookies中获取token。
+            token = req.cookies.authorization;
         } else {
-            return -2
+            return -2;
         }
 
-        token = token.split(' ')[1]
-        let userId = this.token.verifyToken(token)
+        // 因为前端传过来的token前面加上了‘Bearer’，具体格式为：'Bearer ' + token
+        token = token.split(' ')[1];
+        const userAccount = this.token.verifyToken(token);
 
-        return userId
+        return userAccount;
     }
 
     /**
@@ -91,6 +95,7 @@ class Process {
      * @description 用户登录
      * @param {*} req 请求参数：{userAccount, userPassword}
      * @param {*} res 
+     * @returns  {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
     static async login(req, res) {
         let {userAccount, userPassword} = req.body;
@@ -170,6 +175,7 @@ class Process {
      * @description 用户登出，删除保存的用户信息
      * @param {*} req 
      * @param {*} res 
+     * @returns  {object} {code: 200, data: {}, message: '登出成功', success: true}
      */
     static async logout(req, res) {
         let message = {
@@ -177,15 +183,15 @@ class Process {
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
-        }
+        };
 
-        let userAccount = Process._verifyToken_(req)
+        let userAccount = Process._verifyToken_(req);
 
         message = await Process._backTokenProcess_(Process.users.clearTokenUserInfo, {
             userAccount
-        })
+        });
 
-        res.send(message)
+        res.send(message);
     }
 
     /**
