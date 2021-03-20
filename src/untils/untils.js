@@ -56,6 +56,27 @@ class Untils {
             return backVal;
         }
     }
+
+    /**
+     * @description 验证参数格式。
+     * @param {array} param [{value: '值', regExp: '正则表达式'}]
+     * @returns {boolean} 格式正确返回true，错误返回false
+     */
+    static verifyFormat(param = []) {
+        let backVal = false;
+
+        try {
+            backVal = param.every((item) => {
+                return item.regExp.test(item.value);
+            });
+        }
+        catch(ex) {
+            console.error('untils.js => verifyFormat(): ', ex.message);
+        }
+        finally {
+            return backVal;
+        }
+    }
 }
 
 module.exports = Untils;
