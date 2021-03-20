@@ -45,47 +45,54 @@ class Process {
      */
     static _getUserAccount_(req) {
         let token = '';
+        const message = {
+            code: 400,
+            userAccount: null
+        };
 
-        if (req.query.token != undefined) {
-            // 如果传了token参数，则直接获取token的值。
-            token = req.query.token;
-        } else if (req.headers.authorization != undefined) {
-            // 如果没有传token参数，则从请求头里获取token字符串。
-            token = req.headers.authorization;
-        } else if (req.cookies.authorization != undefined) {
-            // 如果请求头里也没有token，则从cookies中获取token。
-            token = req.cookies.authorization;
-        } else {
-            // token获取失败
-            return {
-                code: 300,
-                userAccount: null,
-            };
-        }
+        try {
+            if (req.query.token != undefined) {
+                // 如果传了token参数，则直接获取token的值。
+                token = req.query.token;
+            } else if (req.headers.authorization != undefined) {
+                // 如果没有传token参数，则从请求头里获取token字符串。
+                token = req.headers.authorization;
+            } else if (req.cookies.authorization != undefined) {
+                // 如果请求头里也没有token，则从cookies中获取token。
+                token = req.cookies.authorization;
+            } else {
+                // token获取失败
+                return {
+                    code: 300,
+                    userAccount: null,
+                };
+            }
 
-        // 因为前端传过来的token前面加上了‘Bearer’，具体格式为：'Bearer ' + token
-        token = token.split(' ')[1];
-        const backVal = this.token.verifyToken(token);
+            // 因为前端传过来的token前面加上了‘Bearer’，具体格式为：'Bearer ' + token
+            token = token.split(' ')[1];
+            const backVal = this.token.verifyToken(token);
 
-        let message = {code: 400, userAccount: null};
-
-        if (backVal === 0) {
-            // token超时
-            message.code = 500;
+            if (backVal === 0) {
+                // token超时
+                message.code = 500;
+            } else if (backVal === -1) {
+                // 用户在其他地方登录了
+                message.code = 501;
+            } else if (backVal === -2) {
+                // token错误
+                message.code = 300;
+            } else {
+                message = {
+                    code: 200,
+                    userAccount: backVal
+                };
+            }
+        } catch (ex) {
+            console.error('class Process => _getUserAccount_(): ', ex.message);
         }
-        else if (backVal === -1) {
-            // 用户在其他地方登录了
-            message.code = 501;
+        finally {
+            return message;
         }
-        else if (backVal === -2) {
-            // token错误
-            message.code = 300;
-        }
-        else {
-            message = {code: 200, userAccount: backVal};
-        }
-
-        return message;
     }
 
     /**
@@ -222,8 +229,7 @@ class Process {
 
         if (backVal.userAccount) {
             message = await Process.users.queryUserInfo(backVal.userAccount);
-        }
-        else {
+        } else {
             message.code = backVal.code;
         }
 
@@ -246,12 +252,11 @@ class Process {
 
         const backVal = Process._getUserAccount_(req);
 
-        
+
         if (backVal.userAccount) {
             // 成功获取用户账号后，删除用户登录信息
             message = await Process.users.clearTokenUserInfo(backVal.userAccount);
-        }
-        else {
+        } else {
             message.code = backVal.code;
         }
 
@@ -259,19 +264,20 @@ class Process {
     }
 
     /**
-     * @description 将用户上传的图片存入服务器
+     * @description 图片上传
      * @param {*} req 
      * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '登录成功', success: true}
      */
     static async uploadImg(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
         }
 
-        let userAccount = Process._verifyToken_(req)
+        const backVal = Process._getUserAccount_(req);
 
         message = await Process._backTokenProcess_(Process.uploadFile.uploadImage, {
             userAccount,
