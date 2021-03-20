@@ -88,8 +88,7 @@ class Process {
             }
         } catch (ex) {
             console.error('class Process => _getUserAccount_(): ', ex.message);
-        }
-        finally {
+        } finally {
             return message;
         }
     }
@@ -280,8 +279,7 @@ class Process {
 
         if (backVal.userAccount) {
             message = await Process.uploadFile.saveImage(req);
-        }
-        else {
+        } else {
             message.code = backVal.code;
         }
 
@@ -292,24 +290,43 @@ class Process {
      * @description 修改用户信息
      * @param {*} req 
      * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async editUserInfo(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            const userInfo = req.body;
+
+            const isVerify = Process.untils.verifyParams([{value: userInfo, type: 'object'}]);
+
+            if (!isVerify) {
+                message.code = 300;
+                res.send(message);
+                return;
+            }
+
+            // 没有修改任何信息
+            if (Object.values(userInfo).length === 0) {
+                message.code = 300;
+                res.send(message);
+                return;
+            }
+
+            message = await Process.users.updateUserInfo({userAccount: backVal.userAccount, userInfo});
+
+        } else {
+            message.code = backVal.code;
         }
 
-        let userAccount = Process._verifyToken_(req),
-            userInfo = req.body;
-
-        message = await Process._backTokenProcess_(Process.users.updateUserInfo, {
-            userAccount,
-            userInfo
-        })
-
-        res.send(message)
+        res.send(message);
     }
 
     /**
