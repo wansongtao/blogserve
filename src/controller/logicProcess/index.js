@@ -82,10 +82,9 @@ class Process {
                 // token错误
                 message.code = 300;
             } else {
-                message = {
-                    code: 200,
-                    userAccount: backVal
-                };
+                // 获取账号成功
+                message.code = 200;
+                message.userAccount = backVal;
             }
         } catch (ex) {
             console.error('class Process => _getUserAccount_(): ', ex.message);
