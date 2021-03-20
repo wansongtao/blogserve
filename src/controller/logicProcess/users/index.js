@@ -31,70 +31,57 @@ class Users {
      * @returns {boolean} 存在了返回true，反之返回false
      */
     static async _isUser_(userAccount) {
-        let isHas = false
-        let sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ?'
+        let isHas = false;
 
-        let data = await Users.database.query(sqlStr, [0, userAccount])
+        const sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ?';
 
-        if (data[0]) {
-            isHas = true
+        const data = await Users.database.query(sqlStr, [0, userAccount]);
+        
+        if (data !== false && data.length > 0) {
+            isHas = true;
         }
 
-        return isHas
+        return isHas;
     }
 
     /**
-     * @description 查询用户账号密码
-     * @param {*} req.body {userAccount, userPassword}
+     * @description 查询用户账号密码是否正确
+     * @param {object} user {userAccount, userPassword}
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
     static async queryUser({
         userAccount,
         userPassword
     }) {
+        // 查询该账号是否存在
+        const isHas = await Users._isUser_(userAccount);
 
-        let isVerify = Users._verifyParam_([{
-            value: userAccount,
-            type: 'string'
-        }, {
-            value: userPassword,
-            type: 'string'
-        }])
-
-        if (!isVerify) {
+        if (!isHas) {
             return {
                 code: 300,
                 data: {},
-                message: '参数类型错误',
-                success: false
-            }
-        }
-
-        let isHas = await Users._isUser_(userAccount)
-        if (!isHas) {
-            return {
-                code: 301,
-                data: {},
                 message: '账号不存在',
                 success: false
-            }
+            };
         }
 
-        let sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ? and userPassword = ?'
+        // 查询密码是否正确
+        const sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ? and userPassword = ?'
 
         let data = await Users.database.query(sqlStr, [0, userAccount, userPassword]),
-            message = {}
+            message = {};
 
-        if (data[0]) {
-            let token = Users.token.createToken(userAccount)
+        if (data !== false && data.length > 0) {
+            // 生成token
+            const token = Users.token.createToken(userAccount);
 
             if (token === false) {
                 return {
                     code: 402,
                     data: {},
-                    message: '服务器错误',
+                    message: 'token生成失败',
                     success: false
-                }
+                };
             }
 
             message = {
@@ -104,24 +91,24 @@ class Users {
                 },
                 message: '登录成功',
                 success: true
-            }
-        } else if (data[0] == null) {
+            };
+        } else if (data.length === 0) {
             message = {
-                code: 302,
+                code: 300,
                 data: {},
                 message: '密码错误',
                 success: false
-            }
+            };
         } else {
             message = {
                 code: 401,
                 data: {},
                 message: '服务器错误',
                 success: false
-            }
+            };
         }
 
-        return message
+        return message;
     }
 
     /**
