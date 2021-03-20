@@ -45,7 +45,7 @@ class Users {
     }
 
     /**
-     * @description 查询用户账号密码是否正确
+     * @description 检查用户的账号和密码是否正确
      * @param {object} user {userAccount, userPassword}
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
