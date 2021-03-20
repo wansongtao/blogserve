@@ -93,7 +93,7 @@ class Process {
      * @param {*} res 
      */
     static async login(req, res) {
-        const {userAccount, userPassword} = req.body;
+        let {userAccount, userPassword} = req.body;
 
         // 验证账号密码的数据类型
         const isVerify = Process.untils.verifyParams([{
