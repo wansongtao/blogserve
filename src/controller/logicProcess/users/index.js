@@ -116,23 +116,29 @@ class Users {
      * @param {string} userAccount 
      * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
      */
-    static async queryUserInfo({
-        userAccount
-    }) {
-        let sqlStr = `select userName, userGender, userImgUrl, birthday, weChat, qqAcc, 
-        email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`
+    static async queryUserInfo(userAccount) {
+        const sqlStr = `select userName, userGender, userImgUrl, birthday, weChat, qqAcc, 
+        email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`;
 
         let data = await Users.database.query(sqlStr, [0, userAccount]),
             message = {}
 
-        if (data[0]) {
+        if (data === false) {
+            message = {
+                code: 400,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+        else if (data.length > 0) {
             // mysql的一个bug：数据库里存的为五月四号但查询出来的为五月三号（date类型）
-            let birthday = null
+            let birthday = null;
             if (data[0].birthday != undefined) {
-                birthday = new Date(data[0].birthday)
-                birthday = birthday.setDate(birthday.getDate() + 1)
-                birthday = new Date(birthday).toISOString()
-                birthday = birthday.substr(0, 10)
+                birthday = new Date(data[0].birthday);
+                birthday = birthday.setDate(birthday.getDate() + 1);
+                birthday = new Date(birthday).toISOString();
+                birthday = birthday.substr(0, 10);
             }
 
             message = {
@@ -151,17 +157,18 @@ class Users {
                 },
                 message: '获取用户信息成功',
                 success: true
-            }
-        } else {
+            };
+        }
+        else if (data.length === 0) {
             message = {
-                code: 400,
+                code: 305,
                 data: {},
-                message: '服务器繁忙，请稍后再试',
+                message: '未查询到任何相关信息',
                 success: false
-            }
+            };
         }
 
-        return message
+        return message;
     }
 
     /**
@@ -171,7 +178,7 @@ class Users {
      */
     static async clearTokenUserInfo(userAccount) {
         let message = {};
-        
+
         if (Users.token.deleteUserInfo(userAccount)) {
             message = {
                 code: 200,
