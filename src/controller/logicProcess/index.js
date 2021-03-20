@@ -145,7 +145,7 @@ class Process {
      * @description 用户登录
      * @param {*} req 请求对象 {userAccount, userPassword} = req.body
      * @param {*} res 响应对象
-     * @returns  {object} {code: 200, data: {token}, message: '登录成功', success: true}
+     * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
     static async login(req, res) {
         let {
@@ -208,22 +208,26 @@ class Process {
      * @description 获取用户信息
      * @param {*} req 
      * @param {*} res 
+     * @returns {object} {code: 200, data: {用户信息}, message: '登录成功', success: true}
      */
     static async getUserInfo(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.users.queryUserInfo(backVal.userAccount);
+        }
+        else {
+            message.code = backVal.code;
         }
 
-        let userAccount = Process._verifyToken_(req)
-
-        message = await Process._backTokenProcess_(Process.users.queryUserInfo, {
-            userAccount
-        })
-
-        res.send(message)
+        res.send(message);
     }
 
     /**
