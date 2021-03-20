@@ -142,7 +142,7 @@ class Database {
    * @description 查询操作
    * @param {string} sqlStr 查询语句，例如：'select * from table where column = ?'
    * @param {array} data 要插入查询语句中的值，例如：[10]
-   * @returns {Promise} 成功 resolve(result)查询结果，错误返回false(注意：不是reject(false))
+   * @returns {Promise} 成功 resolve(result)查询结果：一个数组，未查询到任何数据则为空数组[]，错误返回false(注意：不是reject(false))
    */
   static async query(sqlStr, data) {
     return new Promise((resolve, reject) => {
