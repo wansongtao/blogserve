@@ -267,7 +267,7 @@ class Process {
      * @description 图片上传
      * @param {*} req 
      * @param {*} res 
-     * @returns {object} {code: 200, data: {}, message: '登录成功', success: true}
+     * @returns {object} {code: 200, data: {imgUrl}, message: '成功', success: true}
      */
     static async uploadImg(req, res) {
         let message = {
@@ -275,16 +275,18 @@ class Process {
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
-        }
+        };
 
         const backVal = Process._getUserAccount_(req);
 
-        message = await Process._backTokenProcess_(Process.uploadFile.uploadImage, {
-            userAccount,
-            req
-        })
+        if (backVal.userAccount) {
+            message = await Process.uploadFile.saveImage(req);
+        }
+        else {
+            message.code = backVal.code;
+        }
 
-        res.send(message)
+        res.send(message);
     }
 
     /**
