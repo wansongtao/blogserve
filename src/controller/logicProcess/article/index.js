@@ -193,27 +193,23 @@ class Article {
 
     /**
      * @description 获取文章内容
-     * @returns {object} {code: 200, data: {}, message: '', success: true}
+     * @param {number} id 文章id
+     * @returns {object} {code: 200, data: {articleContent}, message: '', success: true}
      */
-    static async queryArticleContent({
-        id
-    }) {
-        if (isNaN(Number(id))) {
-            return {
-                code: 300,
+    static async queryArticleContent(id) {
+        const queryStr = 'SELECT articleContent from articleinfo WHERE ISDELETE = ? and articleId = ?';
+
+        const data = await Article.database.query(queryStr, [0, id]);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
                 data: {},
-                message: '参数错误',
+                message: '服务器错误',
                 success: false
-            }
-        }
-
-        id = Math.abs(id).toFixed()
-        let queryStr = 'SELECT articleContent from articleinfo WHERE ISDELETE = ? and articleId = ?'
-
-        let data = await Article.database.query(queryStr, [0, id]),
-            message = {}
-
-        if (data[0]) {
+            };
+        } else if (data.length > 0) {
             message = {
                 code: 200,
                 data: {
@@ -221,24 +217,17 @@ class Article {
                 },
                 message: '获取成功',
                 success: true
-            }
-        } else if (data[0] == null) {
+            };
+        } else {
             message = {
-                code: 302,
+                code: 305,
                 data: {},
                 message: '未查找到该文章',
                 success: false
-            }
-        } else {
-            message = {
-                code: 401,
-                data: {},
-                message: '服务器错误',
-                success: false
-            }
+            };
         }
 
-        return message
+        return message;
     }
 
     /**

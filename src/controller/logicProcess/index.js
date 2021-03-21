@@ -303,7 +303,7 @@ class Process {
         const backVal = Process._getUserAccount_(req);
 
         if (backVal.userAccount) {
-            const userInfo = req.body;
+            let userInfo = req.body;
 
             const isVerify = Process.untils.verifyParams([{
                 value: userInfo,
@@ -489,23 +489,31 @@ class Process {
      * @description 获取文章内容
      * @param {*} req {id: 文章id}
      * @param {*} res 
+     * @returns {object} {code: 200, data: {articleContent}, message: '成功', success: true}
      */
     static async queryArticleContent(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            if (Process.untils.verifyParams([{value: Number(req.query.id), type: 'number'}])) {
+                message = await Process.article.queryArticleContent(req.query.id);
+            }
+            else {
+                message.code = 300;
+            }
+            
+        } else {
+            message.code = backVal.code;
         }
 
-        let userAccount = Process._verifyToken_(req)
-
-        message = await Process._backTokenProcess_(Process.article.queryArticleContent, {
-            userAccount,
-            id: req.query.id
-        })
-
-        res.send(message)
+        res.send(message);
     }
 
     /**
@@ -543,4 +551,4 @@ module.exports = {
     getArticleList: Process.getArticleList,
     queryArticleContent: Process.queryArticleContent,
     delArticle: Process.delArticle
-}
+};
