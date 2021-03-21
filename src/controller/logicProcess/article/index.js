@@ -64,14 +64,15 @@ class Article {
         };
 
         let curDate = new Date();
-        curDate = curDate.toISOString().substr(0, 19).replace(/[TZ]/, ' ');
+        let myDate = curDate.toLocaleDateString().replace('/', '-');
+        let myTime = curDate.toTimeString().substr(0, 8);
 
         const result = Article.database.insertArticle({
             articleTitle,
             articleImgUrl,
             articleContent,
             ADDACC: userAccount,
-            ADDTIME: curDate,
+            ADDTIME: myDate + ' ' + myTime,
             categoryId
         });
 
