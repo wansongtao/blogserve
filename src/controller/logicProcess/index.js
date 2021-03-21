@@ -316,6 +316,38 @@ class Process {
             // 没有修改任何信息
             if (Object.values(userInfo).length === 0) {
                 message.code = 300;
+                message.message = '您没有修改任何信息';
+                res.send(message);
+                return;
+            }
+
+            // 校验参数格式
+            let isFormat = Object.entries(userInfo).every((item) => {
+                let returnVal = true;
+                const key = item[0];
+                const value = item[1];
+
+                if (key === 'userName') {
+                    returnVal = /^[\u4e00-\u9fa5]{1,8}$/.test(value);
+                } else if (key === 'userGender') {
+                    returnVal = /^[01]$/.test(value);
+                } else if (key === 'birthday') {
+                    returnVal = /^[1-9]{4}-[01][0-9]-[0-9]{2}$/.test(value);
+                } else if (key === 'qqAcc') {
+                    returnVal = /^[1-9][0-9]{4,10}$/.test(value);
+                } else if (key === 'email') {
+                    returnVal = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(value);
+                } else if (key === 'lifeMotto') {
+                    returnVal = /^[\u4e00-\u9fa5，,。\.]{1,50}$/.test(value);
+                } else if (key === 'hobby') {
+                    returnVal = Array.isArray(value);
+                }
+
+                return returnVal;
+            });
+
+            if (!isFormat) {
+                message.code = 300;
                 res.send(message);
                 return;
             }
