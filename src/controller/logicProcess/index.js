@@ -305,7 +305,10 @@ class Process {
         if (backVal.userAccount) {
             const userInfo = req.body;
 
-            const isVerify = Process.untils.verifyParams([{value: userInfo, type: 'object'}]);
+            const isVerify = Process.untils.verifyParams([{
+                value: userInfo,
+                type: 'object'
+            }]);
 
             if (!isVerify) {
                 message.code = 300;
@@ -352,7 +355,10 @@ class Process {
                 return;
             }
 
-            message = await Process.users.updateUserInfo({userAccount: backVal.userAccount, userInfo});
+            message = await Process.users.updateUserInfo({
+                userAccount: backVal.userAccount,
+                userInfo
+            });
 
         } else {
             message.code = backVal.code;
@@ -365,7 +371,7 @@ class Process {
      * @description 获取文章分类
      * @param {*} req 
      * @param {*} res 
-     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     * @returns {object} {code: 200, data: {categories: [{categoryId: 100, categoryType: "文学"}]}, message: '成功', success: true}
      */
     static async getCategory(req, res) {
         let message = {
@@ -379,8 +385,7 @@ class Process {
 
         if (backVal.userAccount) {
             message = await Process.article.getArticleCategory();
-        }
-        else {
+        } else {
             message.code = backVal.code;
         }
 
@@ -391,23 +396,67 @@ class Process {
      * @description 添加文章
      * @param {*} req 
      * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async addArticle(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            let articleImgUrl = req.body.articleImgUrl;
+
+            // 如果传了文章封面路径，则必须是字符串类型
+            if (articleImgUrl !== undefined && typeof articleImgUrl !== 'string') {
+                message.code = 300;
+                res.send(message);
+                return;
+            }
+
+            let {
+                articleTitle,
+                articleContent,
+                categoryId
+            } = req.body;
+
+            const isVerify = Process.untils.verifyParams([
+                {
+                    value: articleTitle,
+                    type: 'string'
+                },
+                {
+                    value: articleContent,
+                    type: 'string'
+                },
+                {
+                    value: categoryId,
+                    type: 'number'
+                }
+            ]);
+
+            if (!isVerify) {
+                message.code = 300;
+                res.send(message);
+                return;
+            }
+
+            message = await Process.article.addArticle({
+                userAccount: backVal.userAccount,
+                articleTitle,
+                articleContent,
+                categoryId,
+                articleImgUrl
+            });
+        } else {
+            message.code = backVal.code;
         }
 
-        let userAccount = Process._verifyToken_(req)
-
-        message = await Process._backTokenProcess_(Process.article.addArticle, {
-            userAccount,
-            params: req.body
-        })
-
-        res.send(message)
+        res.send(message);
     }
 
     /**

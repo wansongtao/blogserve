@@ -64,69 +64,52 @@ class Article {
 
     /**
      * @description 添加文章
-     * @param {*} data 
-     * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
+     * @param {object} data {userAccount, articleTitle, articleContent, categoryId, articleImgUrl}
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
-    static async addArticle(data) {
-        let {
-            userAccount,
-            params: {
-                articleTitle,
-                articleImgUrl,
-                articleContent,
-                categoryId
-            }
-        } = data,
-        message = {
-            code: 300,
+    static async addArticle({
+        userAccount,
+        articleTitle,
+        articleContent,
+        categoryId,
+        articleImgUrl
+    }) {
+        let message = {
+            code: 400,
             data: {},
-            message: '参数错误',
+            message: '服务器繁忙，请稍后再试',
             success: false
         };
 
-        let isVerify = Article._verifyParam_([{
-            value: articleTitle,
-            type: 'string'
-        }, {
-            value: articleContent,
-            type: 'string'
-        }, {
-            value: categoryId,
-            type: 'number'
-        }])
+        let curDate = new Date();
+        curDate = curDate.toISOString().substr(0, 19).replace(/[TZ]/, ' ');
 
-        if (isVerify) {
-            let curDate = new Date()
+        const result = Article.database.insertArticle({
+            articleTitle,
+            articleImgUrl,
+            articleContent,
+            ADDACC: userAccount,
+            ADDTIME: curDate,
+            categoryId
+        });
 
-            curDate = curDate.toISOString().substr(0, 19).replace(/[TZ]/, ' ')
-
-            let result = Article.database.insertArticle({
-                articleTitle,
-                articleImgUrl,
-                articleContent,
-                ADDACC: userAccount,
-                ADDTIME: curDate,
-                categoryId
-            })
-
-            if (result) {
-                message = {
-                    code: 200,
-                    data: {},
-                    message: '添加成功',
-                    success: true
-                }
-            } else {
-                message = {
-                    code: 401,
-                    data: {},
-                    message: '服务器错误',
-                    success: false
-                }
-            }
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '添加成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '添加失败',
+                success: false
+            };
         }
 
-        return message
+        return message;
     }
 
     /**
@@ -261,7 +244,8 @@ class Article {
      * @returns {object} {code: 200, data: {}, message: '', success: true}
      */
     static async delArticle({
-        id, userAccount
+        id,
+        userAccount
     }) {
         if (isNaN(Number(id))) {
             return {
@@ -275,7 +259,7 @@ class Article {
         id = Math.abs(id).toFixed()
         let delTime = new Date().toISOString()
         delTime = delTime.replace(/T|Z/g, ' ').substr(0, 19)
-        
+
         let queryStr = 'UPDATE articleinfo SET DELETEACC = ?, DELETETIME = ?, ISDELETE = ? WHERE articleId = ?'
 
         let data = await Article.database.update(queryStr, [userAccount, delTime, 1, id]),
@@ -288,8 +272,7 @@ class Article {
                 message: '删除成功',
                 success: true
             }
-        }
-        else {
+        } else {
             message = {
                 code: 401,
                 data: {},
