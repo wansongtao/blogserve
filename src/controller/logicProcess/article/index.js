@@ -64,7 +64,7 @@ class Article {
         };
 
         let curDate = new Date();
-        let myDate = curDate.toLocaleDateString().replace('/', '-');
+        let myDate = curDate.toLocaleDateString().replace(/\//g, '-');
         let myTime = curDate.toTimeString().substr(0, 8);
 
         const result = Article.database.insertArticle({
