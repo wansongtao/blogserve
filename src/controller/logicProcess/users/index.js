@@ -187,25 +187,27 @@ class Users {
         userAccount,
         userInfo
     }) {
-        const sqlStr = `update userinfo set userName = ?, userGender = ?, userImgUrl = ?, birthday = ?, weChat = ?,
-         qqAcc = ?, email = ?, hobby = ?, personalDes = ?, lifeMotto = ? where ISDELETE = ? and userAccount = ?`;
+        let setStr = '',
+        paramArr = [];
 
-        let {
-            userName,
-            userGender,
-            avatar,
-            birthday,
-            weChat,
-            qqAcc,
-            email,
-            hobby,
-            personalDes,
-            lifeMotto
-        } = userInfo;
+        // 获取要修改的信息，转化为一部分sql语句（如：userName = ?, userGender = ?），同时将值保存到数组中
+        for (let [key, value] of Object.entries(userInfo)) {
+            setStr += ` ${key} = ?,`; // 最后会多出一个逗号
 
-        const isSuccess = await Users.database.update(sqlStr, [userName, userGender, avatar, birthday.substr(0, 10),
-            weChat, qqAcc, email, hobby.join('/'), personalDes, lifeMotto, 0, userAccount
-        ]);
+            if (key === 'hobby') {
+                value = value.join('/');
+            }
+            
+            paramArr.push(value);
+        }
+
+        // 处理最后多出的逗号
+        setStr = setStr.substring(0, setStr.length - 1);
+        const sqlStr = `update userinfo set ${setStr} where ISDELETE = ? and userAccount = ?`;
+        paramArr.push(0);
+        paramArr.push(userAccount);
+
+        const isSuccess = await Users.database.update(sqlStr, paramArr);
 
         let message = {};
 
@@ -218,9 +220,9 @@ class Users {
             };
         } else {
             message = {
-                code: 400,
+                code: 401,
                 data: {},
-                message: '服务器繁忙，请稍后再试',
+                message: '修改用户信息失败',
                 success: false
             };
         }
