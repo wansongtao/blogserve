@@ -11,34 +11,6 @@ class Process {
     static untils = require('../../untils/untils');
 
     /**
-     * @description 验证token，取出用户账号
-     * @param {*} req 
-     * @returns 验证成功返回用户账号, 获取token失败返回-2，token超时返回0，token错误返回-1
-     */
-    static _verifyToken_(req) {
-        let token = '';
-
-        if (req.query.token != undefined) {
-            // 如果传了token参数，则直接获取token的值。
-            token = req.query.token;
-        } else if (req.headers.authorization != undefined) {
-            // 如果没有传token参数，则从请求头里获取token字符串。
-            token = req.headers.authorization;
-        } else if (req.cookies.authorization != undefined) {
-            // 如果请求头里也没有token，则从cookies中获取token。
-            token = req.cookies.authorization;
-        } else {
-            return -2;
-        }
-
-        // 因为前端传过来的token前面加上了‘Bearer’，具体格式为：'Bearer ' + token
-        token = token.split(' ')[1];
-        const backVal = this.token.verifyToken(token);
-
-        return backVal;
-    }
-
-    /**
      * @description 获取用户账号，根据token
      * @param {object} req 请求对象
      * @returns {object} 返回 {code: 200, userAccount} 获取失败时userAccount为null
@@ -88,59 +60,6 @@ class Process {
             }
         } catch (ex) {
             console.error('class Process => _getUserAccount_(): ', ex.message);
-        } finally {
-            return message;
-        }
-    }
-
-    /**
-     * @description 根据验证token的返回值，执行相应的操作。
-     * @param {function} fn 回调函数(异步)
-     * @param {object} args 传给回调函数的参数对象
-     * @returns {object} {code: 200, data: {}, message: '登录成功', success: true}
-     */
-    static async _backTokenProcess_(fn, args = {}) {
-        let message = {
-            code: 400,
-            data: {},
-            message: '服务器繁忙，请稍后再试',
-            success: false
-        };
-
-        /**
-         * @description 验证token后的返回值
-         */
-        const {
-            userAccount
-        } = args;
-
-        try {
-            if (typeof userAccount === 'string') {
-                message = await fn(args);
-            } else if (userAccount === -2) {
-                message = {
-                    code: 300,
-                    data: {},
-                    message: '服务器繁忙，请稍后再试',
-                    success: false
-                };
-            } else if (userAccount === 0) {
-                message = {
-                    code: 500,
-                    data: {},
-                    message: '用户身份过期，请重新登录',
-                    success: false
-                };
-            } else if (userAccount === -1) {
-                message = {
-                    code: 501,
-                    data: {},
-                    message: '该账号已在别的地方登录',
-                    success: false
-                };
-            }
-        } catch (ex) {
-            console.error('Class Process => _backTokenProcess_(): ', ex.message);
         } finally {
             return message;
         }
@@ -520,21 +439,32 @@ class Process {
      * @description 删除文章
      * @param {*} req {id: 文章id}
      * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async delArticle(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            if (Process.untils.verifyParams([{value: Number(req.query.id), type: 'number'}])) {
+                message = await Process.article.delArticle({
+                    id: req.query.id,
+                    userAccount: backVal.userAccount
+                });
+            }
+            else {
+                message.code = 300;
+            }
+            
+        } else {
+            message.code = backVal.code;
         }
-
-        let userAccount = Process._verifyToken_(req)
-
-        message = await Process._backTokenProcess_(Process.article.delArticle, {
-            userAccount,
-            id: req.query.id
-        })
 
         res.send(message)
     }

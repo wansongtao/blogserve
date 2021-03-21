@@ -4,25 +4,7 @@
  * @date 2020-12-27
  */
 class Article {
-    static database = require('../../../database/database')
-
-    /**
-     * @description 验证参数的类型是否正确
-     * @param {Array} param [{value: value, type: argumentType}
-     * @returns {boolean} 通过返回true
-     */
-    static _verifyParam_(param = []) {
-        try {
-            return param.every(item => {
-                let type = item.type.toUpperCase()
-
-                return item.value.constructor.toString().toUpperCase().indexOf(type) > -1
-            })
-        } catch (ex) {
-            console.error('Class Article => _verifyParam_(): ', ex.message)
-            return false
-        }
-    }
+    static database = require('../../../database/database');
 
     /**
      * @description 查询所有文章分类
@@ -232,29 +214,20 @@ class Article {
 
     /**
      * @description 删除文章
+     * @param {object} data {id, userAccount}
      * @returns {object} {code: 200, data: {}, message: '', success: true}
      */
     static async delArticle({
         id,
         userAccount
     }) {
-        if (isNaN(Number(id))) {
-            return {
-                code: 300,
-                data: {},
-                message: '参数错误',
-                success: false
-            }
-        }
+        let delTime = new Date().toISOString();
+        delTime = delTime.replace(/T|Z/g, ' ').substr(0, 19);
 
-        id = Math.abs(id).toFixed()
-        let delTime = new Date().toISOString()
-        delTime = delTime.replace(/T|Z/g, ' ').substr(0, 19)
+        const queryStr = 'UPDATE articleinfo SET DELETEACC = ?, DELETETIME = ?, ISDELETE = ? WHERE articleId = ?';
 
-        let queryStr = 'UPDATE articleinfo SET DELETEACC = ?, DELETETIME = ?, ISDELETE = ? WHERE articleId = ?'
-
-        let data = await Article.database.update(queryStr, [userAccount, delTime, 1, id]),
-            message = {}
+        const data = await Article.database.update(queryStr, [userAccount, delTime, 1, id]);
+        let message = {};
 
         if (data) {
             message = {
@@ -262,17 +235,17 @@ class Article {
                 data: {},
                 message: '删除成功',
                 success: true
-            }
+            };
         } else {
             message = {
                 code: 401,
                 data: {},
-                message: '服务器错误',
+                message: '删除失败',
                 success: false
-            }
+            };
         }
 
-        return message
+        return message;
     }
 }
 
@@ -282,4 +255,4 @@ module.exports = {
     queryArticleList: Article.queryArticleList,
     queryArticleContent: Article.queryArticleContent,
     delArticle: Article.delArticle
-}
+};
