@@ -26,15 +26,22 @@ class Article {
 
     /**
      * @description 查询所有文章分类
-     * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
+     * @returns {object} {code: 200, data: {categories}, message: '登录成功', success: true}
      */
     static async getArticleCategory() {
-        let queryStr = 'SELECT categoryId, categoryType from articlecategory WHERE ISDELETE = ?'
+        const queryStr = 'SELECT categoryId, categoryType from articlecategory WHERE ISDELETE = ?';
 
-        let data = await Article.database.query(queryStr, [0]),
-            message = {}
+        const data = await Article.database.query(queryStr, [0]);
+        let message = {};
 
-        if (data[0]) {
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        } else if (data.length > 0) {
             message = {
                 code: 200,
                 data: {
@@ -42,24 +49,17 @@ class Article {
                 },
                 message: '获取成功',
                 success: true
-            }
-        } else if (data[0] == null) {
+            };
+        } else {
             message = {
-                code: 302,
+                code: 305,
                 data: {},
                 message: '未查找到任何分类',
                 success: false
-            }
-        } else {
-            message = {
-                code: 401,
-                data: {},
-                message: '服务器错误',
-                success: false
-            }
+            };
         }
 
-        return message
+        return message;
     }
 
     /**

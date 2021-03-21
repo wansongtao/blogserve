@@ -365,22 +365,26 @@ class Process {
      * @description 获取文章分类
      * @param {*} req 
      * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async getCategory(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.getArticleCategory();
+        }
+        else {
+            message.code = backVal.code;
         }
 
-        let userAccount = Process._verifyToken_(req)
-
-        message = await Process._backTokenProcess_(Process.article.getArticleCategory, {
-            userAccount
-        })
-
-        res.send(message)
+        res.send(message);
     }
 
     /**
