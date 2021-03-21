@@ -463,21 +463,24 @@ class Process {
      * @description 获取文章列表
      * @param {*} req {currentPage, pageSize}
      * @param {*} res 
+     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle, ADDACC, ADDTIME}], count}, message: '成功', success: true}
      */
     static async getArticleList(req, res) {
         let message = {
-            code: 444,
+            code: 400,
             data: {},
             message: '服务器繁忙，请稍后再试',
             success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+        let {currentPage, pageSize} = req.query;
+
+        if (backVal.userAccount) {
+            message = await Process.article.queryArticleList({currentPage, pageSize});
+        } else {
+            message.code = backVal.code;
         }
-
-        let userAccount = Process._verifyToken_(req)
-
-        message = await Process._backTokenProcess_(Process.article.queryArticleList, {
-            userAccount,
-            params: req.query
-        })
 
         res.send(message)
     }

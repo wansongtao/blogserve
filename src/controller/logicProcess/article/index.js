@@ -114,20 +114,21 @@ class Article {
 
     /**
      * @description 查询所有文章
+     * @param {object} search {currentPage, pageSize}
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
     static async queryArticleList(search) {
         let {
             currentPage,
             pageSize
-        } = search.params
+        } = search;
 
         // 查询文章数量
         const queryNumber = 'select count(articleId) as articleCount from articleinfo where isdelete = ?'
-        let count = await Article.database.query(queryNumber, [0])
+        let count = await Article.database.query(queryNumber, [0]);
 
         if (count !== false) {
-            count = count[0].articleCount
+            count = count[0].articleCount;
         }
 
         // 查询对应页码的文章
@@ -157,10 +158,17 @@ class Article {
         const queryStr = `SELECT articleId, articleTitle, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ? 
          ORDER BY ADDTIME DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`
 
-        let data = await Article.database.query(queryStr, [0]),
-            message = {}
+        const data = await Article.database.query(queryStr, [0]);
+        let message = {};
 
-        if (data[0]) {
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
             message = {
                 code: 200,
                 data: {
@@ -169,24 +177,18 @@ class Article {
                 },
                 message: '获取成功',
                 success: true
-            }
-        } else if (data[0] == null) {
+            };
+            
+        } else {
             message = {
-                code: 302,
+                code: 305,
                 data: {},
                 message: '文章列表获取失败',
                 success: false
-            }
-        } else {
-            message = {
-                code: 401,
-                data: {},
-                message: '服务器错误',
-                success: false
-            }
+            };
         }
 
-        return message
+        return message;
     }
 
     /**
