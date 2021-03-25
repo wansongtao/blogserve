@@ -132,7 +132,7 @@ class Process {
      * @description 获取用户信息
      * @param {*} req 
      * @param {*} res 
-     * @returns {object} {code: 200, data: {用户信息}, message: '登录成功', success: true}
+     * @returns {object} {code: 200, data: {name,avatar,roles}, message: '登录成功', success: true}
      */
     static async getUserInfo(req, res) {
         let message = {

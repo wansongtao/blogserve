@@ -96,14 +96,14 @@ class Users {
     /**
      * @description 查询用户信息
      * @param {string} userAccount 
-     * @returns {object} {code: 200, data: {name,avatar}, message: '成功', success: true}
+     * @returns {object} {code: 200, data: {name,avatar,roles}, message: '成功', success: true}
      */
     static async queryUserInfo(userAccount) {
         const sqlStr = `select userName, userGender, userImgUrl, birthday, weChat, qqAcc, 
         email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`;
 
         let data = await Users.database.query(sqlStr, [0, userAccount]),
-            message = {}
+            message = {};
 
         if (data === false) {
             message = {
@@ -139,6 +139,18 @@ class Users {
                 message: '获取用户信息成功',
                 success: true
             };
+
+            const roleStr = 'select powerId from userpower where userAccount = ?';
+            const roleId = await Users.database.query(roleStr, [userAccount]);
+
+            if (data && data.length > 0) {
+                message.data.roleId = roleId[0].powerId;
+            }
+            else {
+                message.code = 400;
+                message.success = true;
+                message.message = '用户角色获取失败';
+            }
         } else if (data.length === 0) {
             message = {
                 code: 305,
