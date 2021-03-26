@@ -328,15 +328,6 @@ class Process {
         const backVal = Process._getUserAccount_(req);
 
         if (backVal.userAccount) {
-            let articleImgUrl = req.body.articleImgUrl;
-
-            // 如果传了文章封面路径，则必须是字符串类型
-            if (articleImgUrl !== undefined && typeof articleImgUrl !== 'string') {
-                message.code = 300;
-                res.send(message);
-                return;
-            }
-
             let {
                 articleTitle,
                 articleContent,
@@ -368,8 +359,7 @@ class Process {
                 userAccount: backVal.userAccount,
                 articleTitle,
                 articleContent,
-                categoryId,
-                articleImgUrl
+                categoryId
             });
         } else {
             message.code = backVal.code;
@@ -401,7 +391,7 @@ class Process {
             message.code = backVal.code;
         }
 
-        res.send(message)
+        res.send(message);
     }
 
     /**

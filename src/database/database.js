@@ -287,7 +287,6 @@ class Database {
       let sqlStr = 'insert into articleinfo SET ?',
         {
           articleTitle,
-          articleImgUrl,
           articleContent,
           ADDACC,
           ADDTIME,
@@ -300,8 +299,6 @@ class Database {
           ADDTIME
         };
 
-      articleImgUrl ? params.articleImgUrl = articleImgUrl : '';
-
       let result = await Database._transactionExecuteSql_(conn, sqlStr, params).catch(() => {
         console.error('Class Database => insertArticle(): 插入文章信息失败。');
         return false;
@@ -311,13 +308,25 @@ class Database {
         return false;
       }
 
-      sqlStr = 'INSERT INTO articletype set ?'
+      sqlStr = 'INSERT INTO articletype set ?';
+      const articleId = result.insertId;
 
       result = await Database._transactionExecuteSql_(conn, sqlStr, {
-        articleId: result.insertId,
+        articleId,
         categoryId
       }).catch(() => {
         console.error('Class Database => insertArticle(): 插入文章类型失败。');
+        return false;
+      });
+
+      if (!result) {
+        return false;
+      }
+
+      sqlStr = 'INSERT INTO articlestate set ?';
+
+      result = await Database._transactionExecuteSql_(conn, sqlStr, {articleId, stateNum: 1}).catch(() => {
+        console.error('Class Database => insertArticle(): 插入文章状态失败');
         return false;
       });
 

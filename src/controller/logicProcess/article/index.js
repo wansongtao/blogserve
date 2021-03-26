@@ -64,15 +64,14 @@ class Article {
 
     /**
      * @description 添加文章
-     * @param {object} data {userAccount, articleTitle, articleContent, categoryId, articleImgUrl}
+     * @param {object} data {userAccount, articleTitle, articleContent, categoryId}
      * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async addArticle({
         userAccount,
         articleTitle,
         articleContent,
-        categoryId,
-        articleImgUrl
+        categoryId
     }) {
         let message = {
             code: 400,
@@ -87,7 +86,6 @@ class Article {
 
         const result = Article.database.insertArticle({
             articleTitle,
-            articleImgUrl,
             articleContent,
             ADDACC: userAccount,
             ADDTIME: myDate + ' ' + myTime,
