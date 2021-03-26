@@ -412,7 +412,7 @@ class Process {
 
         if (backVal.userAccount) {
             if (Process.untils.verifyParams([{value: Number(req.query.id), type: 'number'}])) {
-                message = await Process.article.queryArticleContent(req.query.id);
+                message = await Process.article.queryArticleContent(req.query.id, backVal.userAccount);
             }
             else {
                 message.code = 300;

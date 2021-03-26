@@ -124,9 +124,9 @@ class Article {
         } = search;
 
         const rolesId = await Article.getRoles(userAccount);
-        
-        let roleQuery = '', 
-        queryArr = [];
+
+        let roleQuery = '',
+            queryArr = [];
 
         if (rolesId === 0) {
             return {
@@ -144,7 +144,7 @@ class Article {
             roleQuery = ' isdelete = ? ';
             queryArr = [0];
         }
-        
+
 
         // 查询文章数量
         let queryNumber = 'select count(articleId) as articleCount from articlelist where '
@@ -180,7 +180,7 @@ class Article {
         // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
         let pageSizeQuery = ` ORDER BY articleId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
         let queryStr = 'SELECT articleId, articleTitle, author, categoryType, ADDTIME from articlelist where ';
-         queryStr += (roleQuery + pageSizeQuery); 
+        queryStr += (roleQuery + pageSizeQuery);
 
         const data = await Article.database.query(queryStr, [0, userAccount, 0]);
         let message = {};
@@ -218,10 +218,11 @@ class Article {
     /**
      * @description 获取文章内容
      * @param {number} id 文章id
+     * @param {string} userAccount 用户账号
      * @returns {object} {code: 200, data: {articleContent}, message: '', success: true}
      */
-    static async queryArticleContent(id) {
-        const queryStr = 'SELECT articleContent from articleinfo WHERE ISDELETE = ? and articleId = ?';
+    static async queryArticleContent(id, userAccount) {
+        const queryStr = 'SELECT articleContent, ADDACC, stateNum from articlelist WHERE isdelete = ? and articleId = ?';
 
         const data = await Article.database.query(queryStr, [0, id]);
         let message = {};
@@ -234,14 +235,61 @@ class Article {
                 success: false
             };
         } else if (data.length > 0) {
-            message = {
-                code: 200,
-                data: {
-                    articleContent: data[0].articleContent
-                },
-                message: '获取成功',
-                success: true
-            };
+            if (data[0].ADDACC == userAccount) {
+                // 如果是自己写的文章，则直接返回文章内容
+                message = {
+                    code: 200,
+                    data: {
+                        articleContent: data[0].articleContent
+                    },
+                    message: '获取成功',
+                    success: true
+                };
+            } else {
+                const rolesId = await Article.getRoles(userAccount);
+                const stateNum = data[0].stateNum;
+
+                if (rolesId === 0) {
+                    return {
+                        code: 403,
+                        data: {},
+                        message: '服务器繁忙，请稍后再试',
+                        success: false
+                    };
+                } else if (rolesId === 10003) {
+                    // 普通用户只能查看对应权限的文章
+                    if (stateNum === 2 || stateNum === 3) {
+                        message = {
+                            code: 200,
+                            data: {
+                                articleContent: data[0].articleContent
+                            },
+                            message: '获取成功',
+                            success: true
+                        };
+                    }
+                    else {
+                        message = {
+                            code: 503,
+                            data: {},
+                            message: '权限不足',
+                            success: false
+                        };
+                    }
+
+                } else if (rolesId === 10001 || rolesId === 10002) {
+                    // 管理员可以查看所有文章内容
+                    message = {
+                        code: 200,
+                        data: {
+                            articleContent: data[0].articleContent
+                        },
+                        message: '获取成功',
+                        success: true
+                    };
+                }
+            }
+
         } else {
             message = {
                 code: 305,
