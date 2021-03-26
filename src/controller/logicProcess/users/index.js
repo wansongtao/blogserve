@@ -316,6 +316,52 @@ class Users {
 
         return message;
     }
+
+    /**
+     * @description 删除用户
+     * @param {*} param0 {userAccount, adminAccount}
+     * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delUser({userAccount, adminAccount}) {
+        const rolesId = await Users.getRoles(adminAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const deltime = myDate + ' ' + myTime;
+        const sqlStr = 'update users set ISDELETE = ?, DELETEACC = ?, DELETETIME = ? where userAccount = ?'
+
+        const data = await Users.database.update(sqlStr, [1, adminAccount, deltime, userAccount]);
+
+        let message = null;
+        if (data) {
+            message = {
+                code: 200,
+                data: {},
+                message: '删除成功',
+                success: true
+            };
+        }
+        else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -323,5 +369,6 @@ module.exports = {
     queryUserInfo: Users.queryUserInfo,
     clearTokenUserInfo: Users.clearTokenUserInfo,
     updateUserInfo: Users.updateUserInfo,
-    getUserList: Users.getUserList
+    getUserList: Users.getUserList,
+    delUser: Users.delUser
 };

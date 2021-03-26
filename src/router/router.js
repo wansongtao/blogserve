@@ -48,6 +48,9 @@ class Router {
 
     // 获取用户列表
     this.myRouter.get('/admin/getuserlist', process.getUserList);
+
+    // 删除用户
+    this.myRouter.post('/admin/deluser', process.delUser);
   }
 
   /**

@@ -334,8 +334,7 @@ class Process {
                 categoryId
             } = req.body;
 
-            const isVerify = Process.untils.verifyParams([
-                {
+            const isVerify = Process.untils.verifyParams([{
                     value: articleTitle,
                     type: 'string'
                 },
@@ -383,10 +382,17 @@ class Process {
         };
 
         const backVal = Process._getUserAccount_(req);
-        let {currentPage, pageSize} = req.query;
+        let {
+            currentPage,
+            pageSize
+        } = req.query;
 
         if (backVal.userAccount) {
-            message = await Process.article.queryArticleList({userAccount: backVal.userAccount, currentPage, pageSize});
+            message = await Process.article.queryArticleList({
+                userAccount: backVal.userAccount,
+                currentPage,
+                pageSize
+            });
         } else {
             message.code = backVal.code;
         }
@@ -411,13 +417,15 @@ class Process {
         const backVal = Process._getUserAccount_(req);
 
         if (backVal.userAccount) {
-            if (Process.untils.verifyParams([{value: Number(req.query.id), type: 'number'}])) {
+            if (Process.untils.verifyParams([{
+                    value: Number(req.query.id),
+                    type: 'number'
+                }])) {
                 message = await Process.article.queryArticleContent(req.query.id, backVal.userAccount);
-            }
-            else {
+            } else {
                 message.code = 300;
             }
-            
+
         } else {
             message.code = backVal.code;
         }
@@ -442,16 +450,18 @@ class Process {
         const backVal = Process._getUserAccount_(req);
 
         if (backVal.userAccount) {
-            if (Process.untils.verifyParams([{value: Number(req.query.id), type: 'number'}])) {
+            if (Process.untils.verifyParams([{
+                    value: Number(req.query.id),
+                    type: 'number'
+                }])) {
                 message = await Process.article.delArticle({
                     id: req.query.id,
                     userAccount: backVal.userAccount
                 });
-            }
-            else {
+            } else {
                 message.code = 300;
             }
-            
+
         } else {
             message.code = backVal.code;
         }
@@ -476,12 +486,14 @@ class Process {
         const backVal = Process._getUserAccount_(req);
 
         if (backVal.userAccount) {
-            let {currentPage, pageSize} = req.query;
+            let {
+                currentPage,
+                pageSize
+            } = req.query;
 
             if (isNaN(Number(currentPage)) || isNaN(Number(pageSize))) {
                 message.code = 300;
-            }
-            else {
+            } else {
                 currentPage = Math.abs(Number(currentPage)).toFixed();
                 pageSize = Math.abs(Number(pageSize)).toFixed();
 
@@ -491,6 +503,73 @@ class Process {
                     pageSize
                 });
             }
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 删除用户
+     * @param {*} req {userAccount}
+     * @param {*} res 
+     * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delUser(req, res) {
+        let {
+            userAccount
+        } = req.body;
+
+        // 验证账号密码的数据类型
+        const isVerify = Process.untils.verifyParams([{
+            value: userAccount,
+            type: 'string'
+        }]);
+
+        // 类型错误，直接返回信息
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '请求参数类型错误',
+                success: false
+            });
+            return;
+        }
+
+        // 验证账号的格式
+        const isFormat = Process.untils.verifyFormat([{
+                value: userAccount,
+                regExp: /^[a-zA-Z][\w]{1,5}$/
+            }
+        ]);
+
+        // 格式错误，直接返回信息
+        if (!isFormat) {
+            res.send({
+                code: 302,
+                data: {},
+                message: '账号或密码格式错误',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        if (backVal.userAccount) {
+            message = await Process.users.delUser({
+                userAccount,
+                adminAccount: backVal.userAccount
+            });
         } else {
             message.code = backVal.code;
         }
@@ -510,5 +589,6 @@ module.exports = {
     getArticleList: Process.getArticleList,
     queryArticleContent: Process.queryArticleContent,
     delArticle: Process.delArticle,
-    getUserList: Process.getUserList
+    getUserList: Process.getUserList,
+    delUser: Process.delUser
 };
