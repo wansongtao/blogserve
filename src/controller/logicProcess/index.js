@@ -382,7 +382,7 @@ class Process {
      * @description 获取文章列表
      * @param {*} req {currentPage, pageSize}
      * @param {*} res 
-     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle, ADDACC, ADDTIME}], count}, message: '成功', success: true}
+     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle, author, categoryType, ADDTIME}], count}, message: '成功', success: true}
      */
     static async getArticleList(req, res) {
         let message = {
@@ -396,7 +396,7 @@ class Process {
         let {currentPage, pageSize} = req.query;
 
         if (backVal.userAccount) {
-            message = await Process.article.queryArticleList({currentPage, pageSize});
+            message = await Process.article.queryArticleList({userAccount: backVal.userAccount, currentPage, pageSize});
         } else {
             message.code = backVal.code;
         }

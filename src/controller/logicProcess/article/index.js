@@ -7,6 +7,24 @@ class Article {
     static database = require('../../../database/database');
 
     /**
+     * @description 获取用户角色
+     * @param {string} userAccount 用户账号
+     * @returns {number} 成功返回角色id，失败返回0
+     */
+    static async getRoles(userAccount) {
+        let rolesId = 0;
+
+        const queryStr = 'select powerId from userpower where userAccount = ?';
+        const data = await Article.database.query(queryStr, [userAccount]);
+
+        if (data !== false && data.length > 0) {
+            rolesId = data[0].powerId;
+        }
+
+        return rolesId;
+    }
+
+    /**
      * @description 查询所有文章分类
      * @returns {object} {code: 200, data: {categories}, message: '登录成功', success: true}
      */
@@ -96,19 +114,43 @@ class Article {
     }
 
     /**
-     * @description 查询所有文章
+     * @description 查询用户可以看到的文章
      * @param {object} search {currentPage, pageSize}
-     * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
+     * @returns {object} {code: 200, data: {articleId, articleTitle, author, categoryType, ADDTIME}, message: '登录成功', success: true}
      */
     static async queryArticleList(search) {
         let {
             currentPage,
-            pageSize
+            pageSize,
+            userAccount
         } = search;
 
+        const rolesId = await Article.getRoles(userAccount);
+        
+        let roleQuery = '', 
+        queryArr = [];
+
+        if (rolesId === 0) {
+            return {
+                code: 403,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        } else if (rolesId === 10003) {
+            // 普通用户只能查看自己未删除的文章，或后台用户、所有人可见的文章
+            roleQuery = ' isdelete = ? and ADDACC = ? OR stateNum IN (2, 3) and isdelete = ? ';
+            queryArr = [0, userAccount, 0];
+        } else if (rolesId === 10001 || rolesId === 10002) {
+            // 管理员可以查看未删除的文章
+            roleQuery = ' isdelete = ? ';
+            queryArr = [0];
+        }
+        
+
         // 查询文章数量
-        const queryNumber = 'select count(articleId) as articleCount from articleinfo where isdelete = ?'
-        let count = await Article.database.query(queryNumber, [0]);
+        let queryNumber = 'select count(articleId) as articleCount from articlelist where '
+        let count = await Article.database.query(queryNumber + roleQuery, queryArr);
 
         if (count !== false) {
             count = count[0].articleCount;
@@ -138,10 +180,11 @@ class Article {
         }
 
         // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
-        const queryStr = `SELECT articleId, articleTitle, ADDACC, ADDTIME from articleinfo WHERE ISDELETE = ? 
-         ORDER BY ADDTIME DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`
+        let pageSizeQuery = ` ORDER BY articleId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+        let queryStr = 'SELECT articleId, articleTitle, author, categoryType, ADDTIME from articlelist where ';
+         queryStr += (roleQuery + pageSizeQuery); 
 
-        const data = await Article.database.query(queryStr, [0]);
+        const data = await Article.database.query(queryStr, [0, userAccount, 0]);
         let message = {};
 
         if (data === false) {
@@ -161,7 +204,7 @@ class Article {
                 message: '获取成功',
                 success: true
             };
-            
+
         } else {
             message = {
                 code: 305,
