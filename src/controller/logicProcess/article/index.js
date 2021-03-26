@@ -81,7 +81,7 @@ class Article {
         };
 
         let curDate = new Date();
-        let myDate = curDate.toLocaleDateString().replace(/\//g, '-');
+        let myDate = curDate.toLocaleDateString();
         let myTime = curDate.toTimeString().substr(0, 8);
 
         const result = Article.database.insertArticle({
@@ -311,8 +311,30 @@ class Article {
         id,
         userAccount
     }) {
-        let delTime = new Date().toISOString();
-        delTime = delTime.replace(/T|Z/g, ' ').substr(0, 19);
+        // 只有超级管理员可以删除任意文章，其他用户只能删除自己写的文章
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            const sqlStr = 'select ADDACC from articlelist where articleId = ? and isdelete = ?'
+
+            const list = await Article.database.query(sqlStr, [id, 0]);
+
+            if (list !== false && list.length > 0) {
+                if (userAccount != list[0].ADDACC) {
+                    return {
+                        code: 503,
+                        data: {},
+                        message: '权限不足',
+                        success: false
+                    };
+                }
+            }
+        }
+
+        let curDate = new Date();
+        let myDate = curDate.toLocaleDateString();
+        let myTime = curDate.toTimeString().substr(0, 8);
+        let delTime = myDate + ' ' + myTime;
 
         const queryStr = 'UPDATE articleinfo SET DELETEACC = ?, DELETETIME = ?, ISDELETE = ? WHERE articleId = ?';
 

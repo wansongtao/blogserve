@@ -456,7 +456,7 @@ class Process {
             message.code = backVal.code;
         }
 
-        res.send(message)
+        res.send(message);
     }
 }
 
