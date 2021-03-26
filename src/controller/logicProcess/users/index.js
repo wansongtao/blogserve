@@ -322,7 +322,10 @@ class Users {
      * @param {*} param0 {userAccount, adminAccount}
      * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
      */
-    static async delUser({userAccount, adminAccount}) {
+    static async delUser({
+        userAccount,
+        adminAccount
+    }) {
         const rolesId = await Users.getRoles(adminAccount);
 
         if (rolesId !== 10001) {
@@ -350,8 +353,58 @@ class Users {
                 message: '删除成功',
                 success: true
             };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
         }
-        else {
+
+        return message;
+    }
+
+    /**
+     * @description 重置用户密码
+     * @param {*} param0 {userAccount, adminAccount}
+     * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async resetUserPwd({
+        userAccount,
+        adminAccount
+    }) {
+        const rolesId = await Users.getRoles(adminAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const updateTime = myDate + ' ' + myTime;
+
+        const pwd = 'w1' + userAccount + '123';
+
+        const sqlStr = 'update users set userPassword = ?, UPDATEACC = ?, UPDATETIME = ? where ISDELETE = ? and userAccount = ?'
+
+        const data = await Users.database.update(sqlStr, [pwd, adminAccount, updateTime, 0, userAccount]);
+
+        let message = null;
+        if (data) {
+            message = {
+                code: 200,
+                data: {},
+                message: '重置成功',
+                success: true
+            };
+        } else {
             message = {
                 code: 401,
                 data: {},
@@ -370,5 +423,6 @@ module.exports = {
     clearTokenUserInfo: Users.clearTokenUserInfo,
     updateUserInfo: Users.updateUserInfo,
     getUserList: Users.getUserList,
-    delUser: Users.delUser
+    delUser: Users.delUser,
+    resetUserPwd: Users.resetUserPwd
 };

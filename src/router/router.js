@@ -51,6 +51,9 @@ class Router {
 
     // 删除用户
     this.myRouter.post('/admin/deluser', process.delUser);
+
+    // 重置用户密码
+    this.myRouter.post('/admin/resetuserpwd', process.resetUser);
   }
 
   /**

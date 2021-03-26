@@ -540,10 +540,9 @@ class Process {
 
         // 验证账号的格式
         const isFormat = Process.untils.verifyFormat([{
-                value: userAccount,
-                regExp: /^[a-zA-Z][\w]{1,5}$/
-            }
-        ]);
+            value: userAccount,
+            regExp: /^[a-zA-Z][\w]{1,5}$/
+        }]);
 
         // 格式错误，直接返回信息
         if (!isFormat) {
@@ -576,6 +575,72 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 重置用户密码
+     * @param {*} req {userAccount}
+     * @param {*} res 
+     * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async resetUser(req, res) {
+        let {
+            userAccount
+        } = req.body;
+
+        // 验证账号密码的数据类型
+        const isVerify = Process.untils.verifyParams([{
+            value: userAccount,
+            type: 'string'
+        }]);
+
+        // 类型错误，直接返回信息
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '请求参数类型错误',
+                success: false
+            });
+            return;
+        }
+
+        // 验证账号的格式
+        const isFormat = Process.untils.verifyFormat([{
+            value: userAccount,
+            regExp: /^[a-zA-Z][\w]{1,5}$/
+        }]);
+
+        // 格式错误，直接返回信息
+        if (!isFormat) {
+            res.send({
+                code: 302,
+                data: {},
+                message: '账号或密码格式错误',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        if (backVal.userAccount) {
+            message = await Process.users.resetUserPwd({
+                userAccount,
+                adminAccount: backVal.userAccount
+            });
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -590,5 +655,6 @@ module.exports = {
     queryArticleContent: Process.queryArticleContent,
     delArticle: Process.delArticle,
     getUserList: Process.getUserList,
-    delUser: Process.delUser
+    delUser: Process.delUser,
+    resetUser: Process.resetUser
 };
