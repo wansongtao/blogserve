@@ -54,6 +54,9 @@ class Router {
 
     // 重置用户密码
     this.myRouter.post('/admin/resetuserpwd', process.resetUser);
+
+    // 获取权限列表
+    this.myRouter.get('/admin/getpowerlist', process.getPowerList);
   }
 
   /**

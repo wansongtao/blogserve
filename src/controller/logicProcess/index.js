@@ -641,6 +641,31 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取权限列表
+     * @param {*} req 
+     * @param {*} res 
+     * @returns {Promise} {code: 200, data: {powerList: [{powerId, powerName}]}, message: '成功', success: true}
+     */
+    static async getPowerList(req, res) {
+        const backVal = Process._getUserAccount_(req);
+
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        if (backVal.userAccount) {
+            message = await Process.users.getPowerList(backVal.userAccount);
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -656,5 +681,6 @@ module.exports = {
     delArticle: Process.delArticle,
     getUserList: Process.getUserList,
     delUser: Process.delUser,
-    resetUser: Process.resetUser
+    resetUser: Process.resetUser,
+    getPowerList: Process.getPowerList
 };

@@ -415,6 +415,56 @@ class Users {
 
         return message;
     }
+
+    /**
+     * @description 获取权限列表
+     * @param {string} userAccount
+     * @returns {Promise} {code: 200, data: {powerList: [{powerId, powerName}]}, message: '成功', success: true}
+     */
+    static async getPowerList(userAccount) {
+        const rolesId = await Users.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const sqlStr = 'select powerId, powerName from power where ISDELETE = ?';
+
+        const data = await Users.database.query(sqlStr, [0]);
+
+        let message = null;
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    powerList: data
+                },
+                message: '获取成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '数据为空',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -424,5 +474,6 @@ module.exports = {
     updateUserInfo: Users.updateUserInfo,
     getUserList: Users.getUserList,
     delUser: Users.delUser,
-    resetUserPwd: Users.resetUserPwd
+    resetUserPwd: Users.resetUserPwd,
+    getPowerList: Users.getPowerList
 };
