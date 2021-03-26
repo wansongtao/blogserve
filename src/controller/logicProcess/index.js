@@ -458,6 +458,45 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取用户列表
+     * @param {*} req {currentPage, pageSize}
+     * @param {*} res 
+     * @returns {Promise} {code: 200, data: {userList: [{userAccount, powerName, userName, userGender}], count: 0}, message: '成功', success: true}
+     */
+    static async getUserList(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            let {currentPage, pageSize} = req.query;
+
+            if (isNaN(Number(currentPage)) || isNaN(Number(pageSize))) {
+                message.code = 300;
+            }
+            else {
+                currentPage = Math.abs(Number(currentPage)).toFixed();
+                pageSize = Math.abs(Number(pageSize)).toFixed();
+
+                message = await Process.users.getUserList({
+                    userAccount: backVal.userAccount,
+                    currentPage,
+                    pageSize
+                });
+            }
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -470,5 +509,6 @@ module.exports = {
     addArticle: Process.addArticle,
     getArticleList: Process.getArticleList,
     queryArticleContent: Process.queryArticleContent,
-    delArticle: Process.delArticle
+    delArticle: Process.delArticle,
+    getUserList: Process.getUserList
 };

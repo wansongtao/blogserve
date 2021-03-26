@@ -27,6 +27,24 @@ class Users {
     }
 
     /**
+     * @description 获取用户角色
+     * @param {string} userAccount 用户账号
+     * @returns {number} 成功返回角色id，失败返回0
+     */
+    static async getRoles(userAccount) {
+        let rolesId = 0;
+
+        const queryStr = 'select powerId from userpower where userAccount = ?';
+        const data = await Users.database.query(queryStr, [userAccount]);
+
+        if (data !== false && data.length > 0) {
+            rolesId = data[0].powerId;
+        }
+
+        return rolesId;
+    }
+
+    /**
      * @description 检查用户的账号和密码是否正确
      * @param {object} user {userAccount, userPassword}
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
@@ -145,8 +163,7 @@ class Users {
 
             if (data && data.length > 0) {
                 message.data.roleId = roleId[0].powerId;
-            }
-            else {
+            } else {
                 message.code = 400;
                 message.success = true;
                 message.message = '用户角色获取失败';
@@ -200,7 +217,7 @@ class Users {
         userInfo
     }) {
         let setStr = '',
-        paramArr = [];
+            paramArr = [];
 
         // 获取要修改的信息，转化为一部分sql语句（如：userName = ?, userGender = ?），同时将值保存到数组中
         for (let [key, value] of Object.entries(userInfo)) {
@@ -209,7 +226,7 @@ class Users {
             if (key === 'hobby') {
                 value = value.join('/');
             }
-            
+
             paramArr.push(value);
         }
 
@@ -241,11 +258,70 @@ class Users {
 
         return message;
     }
+
+    /**
+     * @description 获取用户列表
+     * @param {*} param0 {userAccount, currentPage, pageSize}
+     * @returns {Promise} {code: 200, data: {userList: [{userAccount, powerName, userName, userGender}], count: 0}, message: '成功', success: true}
+     */
+    static async getUserList({
+        userAccount,
+        currentPage,
+        pageSize
+    }) {
+        const rolesId = await Users.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        let message = null;
+
+        // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
+        const sqlStr = `select userAccount, powerName, userName, userGender from userlist where ISDELETE = ? 
+         limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+
+        const data = await Users.database.query(sqlStr, [0]);
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    userList: data,
+                    count: data.length
+                },
+                message: '获取成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 400,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
     queryUser: Users.queryUser,
     queryUserInfo: Users.queryUserInfo,
     clearTokenUserInfo: Users.clearTokenUserInfo,
-    updateUserInfo: Users.updateUserInfo
+    updateUserInfo: Users.updateUserInfo,
+    getUserList: Users.getUserList
 };

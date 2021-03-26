@@ -157,24 +157,24 @@ class Article {
         // 查询对应页码的文章
         if (isNaN(Number(currentPage))) {
             // 当前页码不为数字，则默认第一页
-            currentPage = 1
+            currentPage = 1;
         } else {
             // 转为正整数
-            currentPage = Math.abs(currentPage).toFixed()
+            currentPage = Math.abs(currentPage).toFixed();
         }
 
         if (isNaN(Number(pageSize))) {
             // 每页大小不为数字，则默认每页十条
-            pageSize = 10
+            pageSize = 10;
         } else {
             // 转为正整数
-            pageSize = Math.abs(pageSize).toFixed()
+            pageSize = Math.abs(pageSize).toFixed();
         }
 
         if ((currentPage - 1) * pageSize > count) {
             // 在当前页码超出范围时，设为默认值
-            currentPage = 1
-            pageSize = 10
+            currentPage = 1;
+            pageSize = 10;
         }
 
         // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
