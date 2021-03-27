@@ -100,7 +100,7 @@ class Process {
         }
 
         // 查询是否有该用户，密码是否正确
-        const message = await Process.users.queryUser({
+        const message = await Process.users.login({
             userAccount,
             userPassword
         });
@@ -700,7 +700,69 @@ class Process {
         };
 
         if (backVal.userAccount) {
-            message = await Process.users.addUser({userAccount, powerId, userName, userGender, adminAccount: backVal.userAccount});
+            message = await Process.users.addUser({
+                userAccount,
+                powerId,
+                userName,
+                userGender,
+                adminAccount: backVal.userAccount
+            });
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 修改密码
+     * @param {*} req 请求对象 {oldPassword, newPassword} = req.body
+     * @param {*} res 响应对象
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async updatePwd(req, res) {
+        let {
+            oldPassword,
+            newPassword
+        } = req.body;
+
+        // 验证密码格式
+        const isFormat = Process.untils.verifyFormat([{
+                value: oldPassword,
+                regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
+            },
+            {
+                value: newPassword,
+                regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
+            }
+        ]);
+
+        // 格式错误，直接返回信息
+        if (!isFormat) {
+            res.send({
+                code: 302,
+                data: {},
+                message: '密码格式错误',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        if (backVal.userAccount) {
+            message = await Process.users.updatePwd({
+                oldPassword,
+                newPassword,
+                userAccount: backVal.userAccount
+            });
         } else {
             message.code = backVal.code;
         }
@@ -724,5 +786,6 @@ module.exports = {
     delUser: Process.delUser,
     resetUser: Process.resetUser,
     getPowerList: Process.getPowerList,
-    addUser: Process.addUser
+    addUser: Process.addUser,
+    updatePwd: Process.updatePwd
 };

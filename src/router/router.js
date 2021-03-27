@@ -60,6 +60,9 @@ class Router {
 
     // 添加用户
     this.myRouter.post('/admin/adduser', process.addUser);
+
+    // 修改密码
+    this.myRouter.post('/admin/updatepwd', process.updatePwd);
   }
 
   /**

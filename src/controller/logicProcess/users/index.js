@@ -46,10 +46,38 @@ class Users {
 
     /**
      * @description 检查用户的账号和密码是否正确
-     * @param {object} user {userAccount, userPassword}
+     * @param {object} {userAccount, userPassword}
+     * @returns {boolean} 存在了返回true，反之返回false
+     */
+    static async _queryUser_({
+        userAccount,
+        userPassword
+    }) {
+        // 查询该账号是否存在
+        const isHas = await Users._isUser_(userAccount);
+
+        if (!isHas) {
+            return false;
+        }
+
+        // 查询密码是否正确
+        const sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ? and userPassword = ?';
+
+        const data = await Users.database.query(sqlStr, [0, userAccount, userPassword]);
+
+        if (data !== false && data.length > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @description 
+     * @param {object} user 
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
-    static async queryUser({
+    static async login({
         userAccount,
         userPassword
     }) {
@@ -66,7 +94,7 @@ class Users {
         }
 
         // 查询密码是否正确
-        const sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ? and userPassword = ?'
+        const sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ? and userPassword = ?';
 
         let data = await Users.database.query(sqlStr, [0, userAccount, userPassword]),
             message = {};
@@ -144,7 +172,7 @@ class Users {
                 }
 
                 let hobby = data[0].hobby;
-                if (hobby.indexOf('/') !== -1){
+                if (hobby.indexOf('/') !== -1) {
                     hobby = hobby.split('/')
                 } else {
                     hobby = [hobby]
@@ -558,10 +586,63 @@ class Users {
 
         return message;
     }
+
+    /**
+     * @description 修改密码
+     * @param {object} data {oldPassword, newPassword, userAccount}
+     * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async updatePwd(data) {
+        const {
+            oldPassword,
+            newPassword,
+            userAccount
+        } = data;
+
+        // 判断原密码是否正确
+        const isHas = await Users._queryUser_({userAccount, userPassword: oldPassword});
+
+        if (!isHas) {
+            return {
+                code: 300,
+                data: {},
+                message: '原密码错误',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const updateTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update users set userPassword = ?, UPDATEACC = ?, UPDATETIME = ?  where userAccount = ?';
+        const result = await Users.database.update(sqlStr, [newPassword, userAccount, updateTime, userAccount]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '修改成功',
+                success: true
+            };
+        }
+        else {
+            message = {
+                code: 401,
+                data: {},
+                message: '修改失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
-    queryUser: Users.queryUser,
+    login: Users.login,
     queryUserInfo: Users.queryUserInfo,
     clearTokenUserInfo: Users.clearTokenUserInfo,
     updateUserInfo: Users.updateUserInfo,
@@ -569,5 +650,6 @@ module.exports = {
     delUser: Users.delUser,
     resetUserPwd: Users.resetUserPwd,
     getPowerList: Users.getPowerList,
-    addUser: Users.addUser
+    addUser: Users.addUser,
+    updatePwd: Users.updatePwd
 };
