@@ -802,6 +802,59 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 文章审核
+     * @param {*} req {articleId, stateNum} = req.body
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async checkArticle(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            articleId,
+            stateNum
+        } = req.body;
+
+        const isVerify = Process.untils.verifyParams([{
+                value: articleId,
+                type: 'number'
+            },
+            {
+                value: stateNum,
+                type: 'number'
+            }
+        ]);
+
+        if (!isVerify) {
+            return {
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.checkArticle({
+                userAccount: backVal.userAccount,
+                articleId,
+                stateNum
+            });
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -821,5 +874,6 @@ module.exports = {
     getPowerList: Process.getPowerList,
     addUser: Process.addUser,
     updatePwd: Process.updatePwd,
-    getAllArticle: Process.getAllArticle
+    getAllArticle: Process.getAllArticle,
+    checkArticle: Process.checkArticle
 };

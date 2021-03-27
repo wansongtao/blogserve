@@ -66,6 +66,9 @@ class Router {
 
     // 获取所有文章
     this.myRouter.get('/admin/allarticle', process.getAllArticle);
+
+    // 审核文章
+    this.myRouter.post('/admin/checkarticle', process.checkArticle);
   }
 
   /**

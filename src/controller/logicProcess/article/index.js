@@ -222,9 +222,9 @@ class Article {
      * @returns {object} {code: 200, data: {articleContent}, message: '', success: true}
      */
     static async queryArticleContent(id, userAccount) {
-        const queryStr = 'SELECT articleContent, ADDACC, stateNum from articlelist WHERE isdelete = ? and articleId = ?';
+        const queryStr = 'SELECT articleContent, ADDACC, stateNum from articlelist WHERE articleId = ?';
 
-        const data = await Article.database.query(queryStr, [0, id]);
+        const data = await Article.database.query(queryStr, [id]);
         let message = {};
 
         if (data === false) {
@@ -450,6 +450,48 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 审核文章，改变文章状态
+     * @param {object} data 
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async checkArticle({userAccount, articleId, stateNum}) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001 && rolesId !== 10002) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const sqlStr = 'update articlestate set stateNum = ? where articleId = ?';
+
+        const result = await Article.database.update(sqlStr, [stateNum, articleId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '修改成功',
+                success: true
+            };
+        }
+        else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -458,5 +500,6 @@ module.exports = {
     queryArticleList: Article.queryArticleList,
     queryArticleContent: Article.queryArticleContent,
     delArticle: Article.delArticle,
-    queryAllArticle: Article.queryAllArticle
+    queryAllArticle: Article.queryAllArticle,
+    checkArticle: Article.checkArticle
 };
