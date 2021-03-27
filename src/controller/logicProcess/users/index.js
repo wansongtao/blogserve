@@ -117,64 +117,96 @@ class Users {
      * @returns {object} {code: 200, data: {name,avatar,roles}, message: '成功', success: true}
      */
     static async queryUserInfo(userAccount) {
-        const sqlStr = `select userName, userGender, userImgUrl, birthday, weChat, qqAcc, 
-        email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`;
+        const roleId = await Users.getRoles(userAccount);
+        let message = null;
 
-        let data = await Users.database.query(sqlStr, [0, userAccount]),
-            message = {};
+        if (roleId === 10001) {
+            const sqlStr = `select userName, userGender, userImgUrl, birthday, weChat, qqAcc, 
+            email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`;
 
-        if (data === false) {
-            message = {
-                code: 400,
-                data: {},
-                message: '服务器繁忙，请稍后再试',
-                success: false
-            };
-        } else if (data.length > 0) {
-            // mysql的一个bug：数据库里存的为五月四号但查询出来的为五月三号（date类型）
-            let birthday = null;
-            if (data[0].birthday != undefined) {
-                birthday = new Date(data[0].birthday);
-                birthday = birthday.setDate(birthday.getDate() + 1);
-                birthday = new Date(birthday).toISOString();
-                birthday = birthday.substr(0, 10);
-            }
+            const data = await Users.database.query(sqlStr, [0, userAccount]);
 
-            message = {
-                code: 200,
-                data: {
-                    name: data[0].userName,
-                    userGender: data[0].userGender,
-                    avatar: data[0].userImgUrl,
-                    birthday: birthday,
-                    weChat: data[0].weChat,
-                    qqAcc: data[0].qqAcc,
-                    email: data[0].email,
-                    hobby: data[0].hobby.split('/'),
-                    personalDes: data[0].personalDes,
-                    lifeMotto: data[0].lifeMotto
-                },
-                message: '获取用户信息成功',
-                success: true
-            };
+            if (data === false) {
+                message = {
+                    code: 401,
+                    data: {},
+                    message: '服务器繁忙，请稍后再试',
+                    success: false
+                };
+            } else if (data.length > 0) {
+                // mysql的一个bug：数据库里存的为五月四号但查询出来的为五月三号（date类型）
+                let birthday = null;
+                if (data[0].birthday != undefined) {
+                    birthday = new Date(data[0].birthday);
+                    birthday = birthday.setDate(birthday.getDate() + 1);
+                    birthday = new Date(birthday).toISOString();
+                    birthday = birthday.substr(0, 10);
+                }
 
-            const roleStr = 'select powerId from userpower where userAccount = ?';
-            const roleId = await Users.database.query(roleStr, [userAccount]);
+                let hobby = data[0].hobby;
+                if (hobby.indexOf('/') !== -1){
+                    hobby = hobby.split('/')
+                } else {
+                    hobby = [hobby]
+                }
 
-            if (data && data.length > 0) {
-                message.data.roleId = roleId[0].powerId;
+                message = {
+                    code: 200,
+                    data: {
+                        name: data[0].userName,
+                        userGender: data[0].userGender,
+                        avatar: data[0].userImgUrl,
+                        birthday: birthday,
+                        weChat: data[0].weChat,
+                        qqAcc: data[0].qqAcc,
+                        email: data[0].email,
+                        hobby,
+                        personalDes: data[0].personalDes,
+                        lifeMotto: data[0].lifeMotto,
+                        roleId
+                    },
+                    message: '获取用户信息成功',
+                    success: true
+                };
             } else {
-                message.code = 400;
-                message.success = true;
-                message.message = '用户角色获取失败';
+                message = {
+                    code: 305,
+                    data: {},
+                    message: '未查询到任何相关信息',
+                    success: false
+                };
             }
-        } else if (data.length === 0) {
-            message = {
-                code: 305,
-                data: {},
-                message: '未查询到任何相关信息',
-                success: false
-            };
+        } else {
+            const sqlStr = `select userName from userinfo where ISDELETE = ? and userAccount = ?`;
+
+            const data = await Users.database.query(sqlStr, [0, userAccount]);
+
+            if (data === false) {
+                message = {
+                    code: 401,
+                    data: {},
+                    message: '服务器繁忙，请稍后再试',
+                    success: false
+                };
+            } else if (data.length > 0) {
+                message = {
+                    code: 200,
+                    data: {
+                        name: data[0].userName,
+                        avatar: 'null',
+                        roleId
+                    },
+                    message: '获取用户信息成功',
+                    success: true
+                };
+            } else {
+                message = {
+                    code: 305,
+                    data: {},
+                    message: '未查询到任何相关信息',
+                    success: false
+                };
+            }
         }
 
         return message;
@@ -465,6 +497,67 @@ class Users {
 
         return message;
     }
+
+    /**
+     * @description 添加用户
+     * @param {object} data 
+     * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async addUser(data) {
+        const {
+            userAccount,
+            powerId,
+            userName,
+            userGender,
+            adminAccount
+        } = data;
+
+        const rolesId = await Users.getRoles(adminAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const userPassword = 'w1' + userAccount + '123';
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const ADDTIME = myDate + ' ' + curDate.toTimeString().substr(0, 8);
+
+        let message = null;
+        const result = await Users.database.insertUser({
+            userAccount,
+            userPassword,
+            ADDACC: adminAccount,
+            ADDTIME,
+            powerId,
+            userName,
+            userGender
+        });
+
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '添加用户成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '添加用户失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -475,5 +568,6 @@ module.exports = {
     getUserList: Users.getUserList,
     delUser: Users.delUser,
     resetUserPwd: Users.resetUserPwd,
-    getPowerList: Users.getPowerList
+    getPowerList: Users.getPowerList,
+    addUser: Users.addUser
 };

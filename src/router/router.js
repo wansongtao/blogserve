@@ -57,6 +57,9 @@ class Router {
 
     // 获取权限列表
     this.myRouter.get('/admin/getpowerlist', process.getPowerList);
+
+    // 添加用户
+    this.myRouter.post('/admin/adduser', process.addUser);
   }
 
   /**

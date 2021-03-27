@@ -77,26 +77,6 @@ class Process {
             userPassword
         } = req.body;
 
-        // 验证账号密码的数据类型
-        const isVerify = Process.untils.verifyParams([{
-            value: userAccount,
-            type: 'string'
-        }, {
-            value: userPassword,
-            type: 'string'
-        }]);
-
-        // 类型错误，直接返回信息
-        if (!isVerify) {
-            res.send({
-                code: 300,
-                data: {},
-                message: '请求参数类型错误',
-                success: false
-            });
-            return;
-        }
-
         // 验证账号密码的格式
         const isFormat = Process.untils.verifyFormat([{
                 value: userAccount,
@@ -666,6 +646,67 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 添加用户
+     * @param {*} req {userAccount, powerId, userName, userGender}
+     * @param {*} res 
+     * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async addUser(req, res) {
+        let {
+            userAccount,
+            powerId,
+            userName,
+            userGender
+        } = req.body;
+
+        // 校验参数格式
+        const isFormat = Process.untils.verifyFormat([{
+                value: userAccount,
+                regExp: /^[a-zA-Z][\w]{1,5}$/
+            },
+            {
+                value: userName,
+                regExp: /^[\u4e00-\u9fa5]{1,8}$/
+            },
+            {
+                value: powerId,
+                regExp: /^[1][0-9]{4}$/
+            },
+            {
+                value: userGender,
+                regExp: /^[01]$/,
+            }
+        ]);
+
+        if (!isFormat) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        if (backVal.userAccount) {
+            message = await Process.users.addUser({userAccount, powerId, userName, userGender, adminAccount: backVal.userAccount});
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -682,5 +723,6 @@ module.exports = {
     getUserList: Process.getUserList,
     delUser: Process.delUser,
     resetUser: Process.resetUser,
-    getPowerList: Process.getPowerList
+    getPowerList: Process.getPowerList,
+    addUser: Process.addUser
 };

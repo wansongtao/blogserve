@@ -11,7 +11,7 @@ class Database {
 
   // 创建连接池
   static pool = this.mysql.createPool({
-    connectionLimit: 88,
+    connectionLimit: 666,
     host: '127.0.0.1',
     user: 'root',
     password: 'password',
@@ -346,11 +346,51 @@ class Database {
     }
   }
 
+  /**
+   * @description 插入用户
+   * @param {object} data {userAccount,userPassword,ADDACC,ADDTIME,powerId,userName,userGender}
+   * @returns 插入成功返回true，失败返回false
+   */
+  static async insertUser(data) {
+    const {userAccount,userPassword,ADDACC,ADDTIME,powerId,userName,userGender} = data;
+    let executeConn = null;
+
+    return Database._getConn_().then((conn) => {
+      return Database._beginTransaction_(conn);
+    })
+    .then((conn) => {
+      // 向用户表插入数据
+      const sqlStr = 'insert into users set ?';
+      executeConn = conn;
+
+      return Database._transactionExecuteSql_(executeConn, sqlStr, {userAccount, userPassword, ADDACC, ADDTIME});
+    })
+    .then(() => {
+      // 向用户信息表插入数据
+      const sqlStr = 'insert into userinfo set ?';
+
+      return Database._transactionExecuteSql_(executeConn, sqlStr, {userAccount, userName, userGender});
+    })
+    .then(() => {
+      // 向用户权限表插入数据
+      const sqlStr = 'insert into userpower set ?';
+
+      return Database._transactionExecuteSql_(executeConn, sqlStr, {userAccount, powerId});
+    })
+    .then(() => {
+      // 提交
+      return Database._commitTransaction_(executeConn);
+    })
+    .catch(() => {
+      return false;
+    });
+  }
 }
 
 module.exports = {
   query: Database.query,
   update: Database.update,
   insert: Database.insert,
-  insertArticle: Database.insertArticle
+  insertArticle: Database.insertArticle,
+  insertUser:Database.insertUser
 };
