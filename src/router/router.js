@@ -63,6 +63,9 @@ class Router {
 
     // 修改密码
     this.myRouter.post('/admin/updatepwd', process.updatePwd);
+
+    // 获取所有文章
+    this.myRouter.get('/admin/allarticle', process.getAllArticle);
   }
 
   /**

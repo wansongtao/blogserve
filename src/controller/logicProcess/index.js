@@ -769,6 +769,39 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取所有文章
+     * @param {*} req {currentPage, pageSize}
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle, author, categoryType, stateDes, ADDTIME, isdelete}], count}, message: '成功', success: true}
+     */
+    static async getAllArticle(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+        let {
+            currentPage,
+            pageSize
+        } = req.query;
+
+        if (backVal.userAccount) {
+            message = await Process.article.queryAllArticle({
+                userAccount: backVal.userAccount,
+                currentPage,
+                pageSize
+            });
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -787,5 +820,6 @@ module.exports = {
     resetUser: Process.resetUser,
     getPowerList: Process.getPowerList,
     addUser: Process.addUser,
-    updatePwd: Process.updatePwd
+    updatePwd: Process.updatePwd,
+    getAllArticle: Process.getAllArticle
 };
