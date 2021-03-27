@@ -453,10 +453,14 @@ class Article {
 
     /**
      * @description 审核文章，改变文章状态
-     * @param {object} data 
+     * @param {object} data {userAccount, articleId, stateNum}
      * @returns {*} {code: 200, data: {}, message: '成功', success: true}
      */
-    static async checkArticle({userAccount, articleId, stateNum}) {
+    static async checkArticle({
+        userAccount,
+        articleId,
+        stateNum
+    }) {
         const rolesId = await Article.getRoles(userAccount);
 
         if (rolesId !== 10001 && rolesId !== 10002) {
@@ -480,8 +484,56 @@ class Article {
                 message: '修改成功',
                 success: true
             };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
         }
-        else {
+
+        return message;
+    }
+
+    /**
+     * @description 恢复文章
+     * @param {object} param0 {userAccount, articleId}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async reductionArticle({
+        userAccount,
+        articleId
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const updateTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update articleinfo set UPDATEACC = ?, UPDATETIME = ?, ISDELETE = ? where articleId = ?';
+
+        const result = await Article.database.update(sqlStr, [userAccount, updateTime, 0, articleId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '修改成功',
+                success: true
+            };
+        } else {
             message = {
                 code: 401,
                 data: {},
@@ -501,5 +553,6 @@ module.exports = {
     queryArticleContent: Article.queryArticleContent,
     delArticle: Article.delArticle,
     queryAllArticle: Article.queryAllArticle,
-    checkArticle: Article.checkArticle
+    checkArticle: Article.checkArticle,
+    reductionArticle: Article.reductionArticle
 };

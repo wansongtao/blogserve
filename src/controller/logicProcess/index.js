@@ -833,12 +833,13 @@ class Process {
         ]);
 
         if (!isVerify) {
-            return {
+            res.send({
                 code: 300,
                 data: {},
                 message: '服务器繁忙，请稍后再试',
                 success: false
-            };
+            });
+            return;
         }
 
         const backVal = Process._getUserAccount_(req);
@@ -848,6 +849,55 @@ class Process {
                 userAccount: backVal.userAccount,
                 articleId,
                 stateNum
+            });
+        } else {
+            message.code = backVal.code;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 文章恢复
+     * @param {*} req {articleId} = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async reductionArticle(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            articleId
+        } = req.query;
+
+        articleId = Number(articleId);
+        const isVerify = Process.untils.verifyParams([{
+                value: articleId,
+                type: 'number'
+            }
+        ]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.reductionArticle({
+                userAccount: backVal.userAccount,
+                articleId
             });
         } else {
             message.code = backVal.code;
@@ -875,5 +925,6 @@ module.exports = {
     addUser: Process.addUser,
     updatePwd: Process.updatePwd,
     getAllArticle: Process.getAllArticle,
-    checkArticle: Process.checkArticle
+    checkArticle: Process.checkArticle,
+    reductionArticle: Process.reductionArticle
 };

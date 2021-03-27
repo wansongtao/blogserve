@@ -69,6 +69,9 @@ class Router {
 
     // 审核文章
     this.myRouter.post('/admin/checkarticle', process.checkArticle);
+
+    // 恢复文章
+    this.myRouter.get('/admin/reduction', process.reductionArticle);
   }
 
   /**
