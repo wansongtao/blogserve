@@ -788,6 +788,105 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 删除评论
+     * @param {object} param0 {userAccount, commentId}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delComment({
+        userAccount,
+        commentId
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const delTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update comment set ISDELETE = ?, DELETEACC = ?, DELETETIME = ? where commentId = ?';
+
+        const result = await Article.database.update(sqlStr, [1, userAccount, delTime, commentId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '删除成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
+
+    /**
+     * @description 评论审核
+     * @param {object} param0 {userAccount, commentId, stateId}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async checkComment({
+        userAccount,
+        commentId,
+        stateId
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001 && rolesId !== 10002) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const checkTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update commentcheckstate set stateId = ?, checkACC = ?, checkTime = ? where commentId = ?';
+
+        const result = await Article.database.update(sqlStr, [stateId, userAccount, checkTime, commentId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '审核成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -802,5 +901,7 @@ module.exports = {
     updateCategory: Article.updateCategory,
     addCategory: Article.addCategory,
     delCategory: Article.delCategory,
-    queryAllComment: Article.queryAllComment
+    queryAllComment: Article.queryAllComment,
+    delComment: Article.delComment,
+    checkComment: Article.checkComment
 };

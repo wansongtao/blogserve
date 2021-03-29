@@ -84,6 +84,12 @@ class Router {
 
     // 获取所有文章评论列表
     this.myRouter.get('/admin/allcomment', process.allComment);
+
+    // 删除评论
+    this.myRouter.get('/admin/delcomment', process.delComment);
+
+    // 评论审核
+    this.myRouter.post('/admin/checkcomment', process.checkComment);
   }
 
   /**

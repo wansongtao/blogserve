@@ -1113,6 +1113,111 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 删除评论
+     * @param {*} req {commentId} = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delComment(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            commentId
+        } = req.query;
+
+        commentId = Number(commentId);
+        const isVerify = Process.untils.verifyParams([{
+            value: commentId,
+            type: 'number'
+        }]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.delComment({
+                userAccount: backVal.userAccount,
+                commentId
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 评论审核
+     * @param {*} req {commentId, stateId} = req.body
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async checkComment(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            commentId,
+            stateId
+        } = req.body;
+
+        commentId = Number(commentId);
+        const isVerify = Process.untils.verifyParams([{
+                value: commentId,
+                type: 'number'
+            },
+            {
+                value: stateId,
+                type: 'number'
+            }
+        ]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.checkComment({
+                userAccount: backVal.userAccount,
+                commentId,
+                stateId
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1138,5 +1243,7 @@ module.exports = {
     updateCategory: Process.updateCategory,
     addCategory: Process.addCategory,
     delCategory: Process.delCategory,
-    allComment: Process.allComment
+    allComment: Process.allComment,
+    delComment: Process.delComment,
+    checkComment: Process.checkComment
 };
