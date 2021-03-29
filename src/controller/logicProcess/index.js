@@ -1001,12 +1001,10 @@ class Process {
             categoryType
         } = req.body;
 
-        const isVerify = Process.untils.verifyParams([
-            {
-                value: categoryType,
-                type: 'string'
-            }
-        ]);
+        const isVerify = Process.untils.verifyParams([{
+            value: categoryType,
+            type: 'string'
+        }]);
 
         if (!isVerify) {
             res.send({
@@ -1024,6 +1022,56 @@ class Process {
             message = await Process.article.addCategory({
                 userAccount: backVal.userAccount,
                 categoryType
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 删除分类
+     * @param {*} req {categoryId} = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delCategory(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            categoryId
+        } = req.query;
+
+        categoryId = Number(categoryId);
+        const isVerify = Process.untils.verifyParams([{
+                value: categoryId,
+                type: 'number'
+            }
+        ]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.delCategory({
+                userAccount: backVal.userAccount,
+                categoryId
             });
         } else {
             message.code = backVal.code;
@@ -1055,5 +1103,6 @@ module.exports = {
     checkArticle: Process.checkArticle,
     reductionArticle: Process.reductionArticle,
     updateCategory: Process.updateCategory,
-    addCategory: Process.addCategory
+    addCategory: Process.addCategory,
+    delCategory: Process.delCategory
 };

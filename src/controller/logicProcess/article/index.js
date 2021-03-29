@@ -623,7 +623,11 @@ class Article {
 
         const sqlStr = 'insert into articlecategory set ?';
 
-        const result = await Article.database.insert(sqlStr, {categoryType, ADDACC, ADDTIME});
+        const result = await Article.database.insert(sqlStr, {
+            categoryType,
+            ADDACC,
+            ADDTIME
+        });
 
         let message = null;
         if (result) {
@@ -631,6 +635,55 @@ class Article {
                 code: 200,
                 data: {},
                 message: '添加成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
+
+    /**
+     * @description 删除分类
+     * @param {object} param0 {userAccount, categoryId}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delCategory({
+        userAccount,
+        categoryId
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const delTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update articlecategory set ISDELETE = ?, DELETEACC = ?, DELETETIME = ? where categoryId = ?';
+
+        const result = await Article.database.update(sqlStr, [1, userAccount, delTime, categoryId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '删除成功',
                 success: true
             };
         } else {
@@ -656,5 +709,6 @@ module.exports = {
     checkArticle: Article.checkArticle,
     reductionArticle: Article.reductionArticle,
     updateCategory: Article.updateCategory,
-    addCategory: Article.addCategory
+    addCategory: Article.addCategory,
+    delCategory: Article.delCategory
 };

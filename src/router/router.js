@@ -78,6 +78,9 @@ class Router {
 
     // 添加分类
     this.myRouter.post('/admin/addcategory', process.addCategory);
+
+    // 删除分类
+    this.myRouter.get('/admin/delcategory', process.delCategory);
   }
 
   /**
