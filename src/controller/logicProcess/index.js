@@ -19,7 +19,8 @@ class Process {
         let token = '';
         const message = {
             code: 400,
-            userAccount: null
+            userAccount: null,
+            message: '服务器繁忙，请稍后再试'
         };
 
         try {
@@ -37,6 +38,7 @@ class Process {
                 return {
                     code: 300,
                     userAccount: null,
+                    message: '获取token失败'
                 };
             }
 
@@ -47,9 +49,11 @@ class Process {
             if (backVal === 0) {
                 // token超时
                 message.code = 500;
+                message.message = '用户身份过期，请重新登录';
             } else if (backVal === -1) {
                 // 用户在其他地方登录了
                 message.code = 501;
+                message.message = '该账号已在别的地方登录，请确认密码是否泄露？如已泄露，请通知管理员。';
             } else if (backVal === -2) {
                 // token错误
                 message.code = 300;
@@ -128,6 +132,7 @@ class Process {
             message = await Process.users.queryUserInfo(backVal.userAccount);
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -155,6 +160,7 @@ class Process {
             message = await Process.users.clearTokenUserInfo(backVal.userAccount);
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -180,6 +186,7 @@ class Process {
             message = await Process.uploadFile.saveImage(req);
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -261,6 +268,7 @@ class Process {
 
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -286,6 +294,7 @@ class Process {
             message = await Process.article.getArticleCategory();
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -342,6 +351,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -375,6 +385,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -404,6 +415,7 @@ class Process {
                 message = await Process.article.queryArticleContent(req.query.id, backVal.userAccount);
             } else {
                 message.code = 300;
+                message.message = backVal.message;
             }
 
         } else {
@@ -440,6 +452,7 @@ class Process {
                 });
             } else {
                 message.code = 300;
+                message.message = backVal.message;
             }
 
         } else {
@@ -485,6 +498,7 @@ class Process {
             }
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -551,6 +565,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -617,6 +632,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -642,6 +658,7 @@ class Process {
             message = await Process.users.getPowerList(backVal.userAccount);
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -709,6 +726,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -765,6 +783,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -798,6 +817,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -852,6 +872,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
@@ -901,6 +922,7 @@ class Process {
             });
         } else {
             message.code = backVal.code;
+            message.message = backVal.message;
         }
 
         res.send(message);
