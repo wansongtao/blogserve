@@ -342,6 +342,14 @@ class Users {
 
         let message = null;
 
+        // 查询用户数量
+        let queryNumber = 'select count(userId) as userCount from users where ISDELETE = ?';
+        let count = await Users.database.query(queryNumber, [0]);
+
+        if (count !== false && count.length > 0) {
+            count = count[0].userCount;
+        }
+
         // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
         const sqlStr = `select userAccount, powerName, userName, userGender from userlist where ISDELETE = ? 
          limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
@@ -360,7 +368,7 @@ class Users {
                 code: 200,
                 data: {
                     userList: data,
-                    count: data.length
+                    count
                 },
                 message: '获取成功',
                 success: true

@@ -1051,10 +1051,9 @@ class Process {
 
         categoryId = Number(categoryId);
         const isVerify = Process.untils.verifyParams([{
-                value: categoryId,
-                type: 'number'
-            }
-        ]);
+            value: categoryId,
+            type: 'number'
+        }]);
 
         if (!isVerify) {
             res.send({
@@ -1072,6 +1071,40 @@ class Process {
             message = await Process.article.delCategory({
                 userAccount: backVal.userAccount,
                 categoryId
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 获取所有文章评论
+     * @param {*} req {currentPage, pageSize}
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {comment: [{commentId, commentContent, commentTime, articleTitle, auditor, stateDes}], count}, message: '成功', success: true}
+     */
+    static async allComment(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+        let {
+            currentPage,
+            pageSize
+        } = req.query;
+
+        if (backVal.userAccount) {
+            message = await Process.article.queryAllComment({
+                userAccount: backVal.userAccount,
+                currentPage,
+                pageSize
             });
         } else {
             message.code = backVal.code;
@@ -1104,5 +1137,6 @@ module.exports = {
     reductionArticle: Process.reductionArticle,
     updateCategory: Process.updateCategory,
     addCategory: Process.addCategory,
-    delCategory: Process.delCategory
+    delCategory: Process.delCategory,
+    allComment: Process.allComment
 };

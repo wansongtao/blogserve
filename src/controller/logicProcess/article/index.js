@@ -697,6 +697,97 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 查询所有文章评论
+     * @param {object} search {currentPage, pageSize}
+     * @returns {object} {code: 200, data: {comment: [commentId, commentContent, commentTime, articleTitle, auditor, stateDes], count}, message: '成功', success: true}
+     */
+    static async queryAllComment(search) {
+        let {
+            currentPage,
+            pageSize,
+            userAccount
+        } = search;
+
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001 && rolesId !== 10002) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        // 查询评论数量
+        let queryNumber = 'select count(articleId) as commentCount from commentlist where isDelete = ?';
+        let count = await Article.database.query(queryNumber, [0]);
+
+        if (count !== false && count.length > 0) {
+            count = count[0].commentCount;
+        }
+
+        // 查询对应页码的文章
+        if (isNaN(Number(currentPage))) {
+            // 当前页码不为数字，则默认第一页
+            currentPage = 1;
+        } else {
+            // 转为正整数
+            currentPage = Math.abs(currentPage).toFixed();
+        }
+
+        if (isNaN(Number(pageSize))) {
+            // 每页大小不为数字，则默认每页十条
+            pageSize = 10;
+        } else {
+            // 转为正整数
+            pageSize = Math.abs(pageSize).toFixed();
+        }
+
+        if ((currentPage - 1) * pageSize > count) {
+            // 在当前页码超出范围时，设为默认值
+            currentPage = 1;
+            pageSize = 10;
+        }
+
+        // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
+        let queryStr = `SELECT commentId, commentContent, commentTime, articleTitle, auditor, stateDes from commentlist where 
+        isDelete = ? ORDER BY commentId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+
+        const data = await Article.database.query(queryStr, [0]);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    comment: data,
+                    count
+                },
+                message: '获取成功',
+                success: true
+            };
+
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '评论列表获取失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -710,5 +801,6 @@ module.exports = {
     reductionArticle: Article.reductionArticle,
     updateCategory: Article.updateCategory,
     addCategory: Article.addCategory,
-    delCategory: Article.delCategory
+    delCategory: Article.delCategory,
+    queryAllComment: Article.queryAllComment
 };
