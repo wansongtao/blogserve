@@ -29,7 +29,7 @@ class Article {
      * @returns {object} {code: 200, data: {categories}, message: '登录成功', success: true}
      */
     static async getArticleCategory() {
-        const queryStr = 'SELECT categoryId, categoryType from articlecategory WHERE ISDELETE = ?';
+        const queryStr = 'SELECT categoryId, categoryType, ADDACC, ADDTIME from articlecategory WHERE ISDELETE = ?';
 
         const data = await Article.database.query(queryStr, [0]);
         let message = {};

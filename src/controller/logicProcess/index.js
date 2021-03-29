@@ -278,7 +278,7 @@ class Process {
      * @description 获取文章分类
      * @param {*} req 
      * @param {*} res 
-     * @returns {object} {code: 200, data: {categories: [{categoryId: 100, categoryType: "文学"}]}, message: '成功', success: true}
+     * @returns {object} {code: 200, data: {categories: [{categoryId, categoryType, ADDACC, ADDTIME}]}, message: '成功', success: true}
      */
     static async getCategory(req, res) {
         let message = {
