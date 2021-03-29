@@ -898,10 +898,9 @@ class Process {
 
         articleId = Number(articleId);
         const isVerify = Process.untils.verifyParams([{
-                value: articleId,
-                type: 'number'
-            }
-        ]);
+            value: articleId,
+            type: 'number'
+        }]);
 
         if (!isVerify) {
             res.send({
@@ -919,6 +918,62 @@ class Process {
             message = await Process.article.reductionArticle({
                 userAccount: backVal.userAccount,
                 articleId
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 修改栏目名称
+     * @param {*} req {categoryId, categoryType} = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async updateCategory(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            categoryId,
+            categoryType
+        } = req.query;
+
+        categoryId = Number(categoryId);
+        const isVerify = Process.untils.verifyParams([{
+                value: categoryId,
+                type: 'number'
+            },
+            {
+                value: categoryType,
+                type: 'string'
+            }
+        ]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.updateCategory({
+                userAccount: backVal.userAccount,
+                categoryId,
+                categoryType
             });
         } else {
             message.code = backVal.code;
@@ -948,5 +1003,6 @@ module.exports = {
     updatePwd: Process.updatePwd,
     getAllArticle: Process.getAllArticle,
     checkArticle: Process.checkArticle,
-    reductionArticle: Process.reductionArticle
+    reductionArticle: Process.reductionArticle,
+    updateCategory: Process.updateCategory
 };

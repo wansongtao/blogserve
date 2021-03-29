@@ -72,6 +72,9 @@ class Router {
 
     // 恢复文章
     this.myRouter.get('/admin/reduction', process.reductionArticle);
+
+    // 修改分类名称
+    this.myRouter.get('/admin/updatecategory', process.updateCategory);
   }
 
   /**

@@ -544,6 +544,56 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 修改栏目名称
+     * @param {object} param0 {userAccount, categoryId, categoryType}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async updateCategory({
+        userAccount,
+        categoryId,
+        categoryType
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const updateTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update articlecategory set categoryType = ?, UPDATEACC = ?, UPDATETIME = ? where categoryId = ?';
+
+        const result = await Article.database.update(sqlStr, [categoryType, userAccount, updateTime, categoryId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '修改成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -554,5 +604,6 @@ module.exports = {
     delArticle: Article.delArticle,
     queryAllArticle: Article.queryAllArticle,
     checkArticle: Article.checkArticle,
-    reductionArticle: Article.reductionArticle
+    reductionArticle: Article.reductionArticle,
+    updateCategory: Article.updateCategory
 };
