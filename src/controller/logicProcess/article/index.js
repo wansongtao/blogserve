@@ -546,7 +546,7 @@ class Article {
     }
 
     /**
-     * @description 修改栏目名称
+     * @description 修改分类名称
      * @param {object} param0 {userAccount, categoryId, categoryType}
      * @returns {*} {code: 200, data: {}, message: '成功', success: true}
      */
@@ -594,6 +594,56 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 添加分类
+     * @param {object} param0 {userAccount, categoryType}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async addCategory({
+        userAccount,
+        categoryType
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const ADDTIME = myDate + ' ' + myTime;
+        const ADDACC = userAccount;
+
+        const sqlStr = 'insert into articlecategory set ?';
+
+        const result = await Article.database.insert(sqlStr, {categoryType, ADDACC, ADDTIME});
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '添加成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -605,5 +655,6 @@ module.exports = {
     queryAllArticle: Article.queryAllArticle,
     checkArticle: Article.checkArticle,
     reductionArticle: Article.reductionArticle,
-    updateCategory: Article.updateCategory
+    updateCategory: Article.updateCategory,
+    addCategory: Article.addCategory
 };

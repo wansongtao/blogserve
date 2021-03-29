@@ -75,6 +75,9 @@ class Router {
 
     // 修改分类名称
     this.myRouter.get('/admin/updatecategory', process.updateCategory);
+
+    // 添加分类
+    this.myRouter.post('/admin/addcategory', process.addCategory);
   }
 
   /**

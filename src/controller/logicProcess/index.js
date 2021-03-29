@@ -928,7 +928,7 @@ class Process {
     }
 
     /**
-     * @description 修改栏目名称
+     * @description 修改分类名称
      * @param {*} req {categoryId, categoryType} = req.query
      * @param {*} res 
      * @returns {object} {code: 200, data: {}, message: '成功', success: true}
@@ -982,6 +982,56 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 添加分类
+     * @param {*} req {categoryType} = req.body
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async addCategory(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            categoryType
+        } = req.body;
+
+        const isVerify = Process.untils.verifyParams([
+            {
+                value: categoryType,
+                type: 'string'
+            }
+        ]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.addCategory({
+                userAccount: backVal.userAccount,
+                categoryType
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1004,5 +1054,6 @@ module.exports = {
     getAllArticle: Process.getAllArticle,
     checkArticle: Process.checkArticle,
     reductionArticle: Process.reductionArticle,
-    updateCategory: Process.updateCategory
+    updateCategory: Process.updateCategory,
+    addCategory: Process.addCategory
 };
