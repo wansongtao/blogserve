@@ -25,9 +25,11 @@ class Index {
 
     webApp.all('*', (req, res, next) => {
       // 允许跨域
-      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Origin', 'http://localhost:5050');
       // 设置请求头
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+      res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS, PATCH');
 
       next();
     });
