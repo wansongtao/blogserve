@@ -237,6 +237,26 @@ class Users {
             }
         }
 
+        // 查询待处理事项
+        if (roleId === 10001 || roleId === 10002) {
+            // 查询待审核的评论数量
+            let queryNumber = 'select count(commentId) as commentCount from commentlist where isDelete = ? and stateDes = ?';
+            let pendingComment = await Users.database.query(queryNumber, [0, '待审核']);
+
+            if (pendingComment !== false && pendingComment.length > 0) {
+                message.data.pendingComment = pendingComment[0].commentCount;
+            }
+
+            // 查询待审核的文章数量
+            let sqlStr = 'select count(articleId) as articleCount from articlelist where isDelete = ? and stateNum = ?';
+
+            const data = await Users.database.query(sqlStr, [0, 1]);
+
+            if (data !== false && data.length > 0) {
+                message.data.pendingArticle = data[0].articleCount;
+            }
+        }
+
         return message;
     }
 
@@ -608,7 +628,10 @@ class Users {
         } = data;
 
         // 判断原密码是否正确
-        const isHas = await Users._queryUser_({userAccount, userPassword: oldPassword});
+        const isHas = await Users._queryUser_({
+            userAccount,
+            userPassword: oldPassword
+        });
 
         if (!isHas) {
             return {
@@ -635,8 +658,7 @@ class Users {
                 message: '修改成功',
                 success: true
             };
-        }
-        else {
+        } else {
             message = {
                 code: 401,
                 data: {},
