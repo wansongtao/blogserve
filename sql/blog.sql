@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80022
 File Encoding         : 65001
 
-Date: 2021-03-27 17:41:42
+Date: 2021-03-29 18:38:18
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -38,17 +38,43 @@ CREATE TABLE `articlecategory` (
   CONSTRAINT `articleCategory_addaccfk` FOREIGN KEY (`ADDACC`) REFERENCES `users` (`userAccount`),
   CONSTRAINT `articleCategory_deleteaccfk` FOREIGN KEY (`DELETEACC`) REFERENCES `users` (`userAccount`),
   CONSTRAINT `articleCategory_updateaccfk` FOREIGN KEY (`UPDATEACC`) REFERENCES `users` (`userAccount`)
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of articlecategory
 -- ----------------------------
-INSERT INTO `articlecategory` VALUES ('100', '文学', null, null, null, null, null, null, null, '0');
-INSERT INTO `articlecategory` VALUES ('101', '日记', null, null, null, null, null, null, null, '0');
-INSERT INTO `articlecategory` VALUES ('102', 'javascript', null, null, null, null, null, null, null, '0');
-INSERT INTO `articlecategory` VALUES ('103', 'node.js', null, null, null, null, null, null, null, '0');
-INSERT INTO `articlecategory` VALUES ('104', 'HTML/CSS', null, null, null, null, null, null, null, '0');
-INSERT INTO `articlecategory` VALUES ('105', 'vue', null, null, null, null, null, null, null, '0');
+INSERT INTO `articlecategory` VALUES ('100', '文学', null, 'Sadmin', '2021/3/29 15:08:44', 'Sadmin', '2021/3/29 15:08:44', null, null, '0');
+INSERT INTO `articlecategory` VALUES ('101', '日记', null, 'Sadmin', '2021/3/29 15:08:44', null, null, 'Sadmin', '2021/3/29 15:39:52', '1');
+INSERT INTO `articlecategory` VALUES ('102', 'javascript', null, 'Sadmin', '2021/3/29 15:08:44', null, null, null, null, '0');
+INSERT INTO `articlecategory` VALUES ('103', 'node.js', null, 'Sadmin', '2021/3/29 15:08:44', null, null, null, null, '0');
+INSERT INTO `articlecategory` VALUES ('104', 'HTML/CSS', null, 'Sadmin', '2021/3/29 15:08:44', null, null, null, null, '0');
+INSERT INTO `articlecategory` VALUES ('105', 'vue', null, 'Sadmin', '2021/3/29 15:08:44', null, null, null, null, '0');
+INSERT INTO `articlecategory` VALUES ('106', 'Linux', null, 'Sadmin', '2021/3/29 15:27:05', null, null, null, null, '0');
+INSERT INTO `articlecategory` VALUES ('107', '笔记', null, 'Sadmin', '2021/3/29 15:40:34', null, null, null, null, '0');
+
+-- ----------------------------
+-- Table structure for `articlecomment`
+-- ----------------------------
+DROP TABLE IF EXISTS `articlecomment`;
+CREATE TABLE `articlecomment` (
+  `articleId` int NOT NULL,
+  `commentId` int NOT NULL,
+  PRIMARY KEY (`commentId`),
+  KEY `fk_ai` (`articleId`),
+  CONSTRAINT `fk_ai` FOREIGN KEY (`articleId`) REFERENCES `articleinfo` (`articleId`),
+  CONSTRAINT `fk_ci` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of articlecomment
+-- ----------------------------
+INSERT INTO `articlecomment` VALUES ('10000', '100');
+INSERT INTO `articlecomment` VALUES ('10000', '103');
+INSERT INTO `articlecomment` VALUES ('10000', '104');
+INSERT INTO `articlecomment` VALUES ('10000', '105');
+INSERT INTO `articlecomment` VALUES ('10000', '106');
+INSERT INTO `articlecomment` VALUES ('10001', '101');
+INSERT INTO `articlecomment` VALUES ('10025', '102');
 
 -- ----------------------------
 -- Table structure for `articleinfo`
@@ -72,13 +98,14 @@ CREATE TABLE `articleinfo` (
   CONSTRAINT `articleinfo_addaccfk` FOREIGN KEY (`ADDACC`) REFERENCES `users` (`userAccount`),
   CONSTRAINT `articleinfo_deleteaccfk` FOREIGN KEY (`DELETEACC`) REFERENCES `users` (`userAccount`),
   CONSTRAINT `articleinfo_updateaccfk` FOREIGN KEY (`UPDATEACC`) REFERENCES `users` (`userAccount`)
-) ENGINE=InnoDB AUTO_INCREMENT=10025 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10026 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of articleinfo
 -- ----------------------------
 INSERT INTO `articleinfo` VALUES ('10000', 'javaScript中关于数组的各种方法和属性', '<p>1.length属性：获取数组中元素的个数。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-8a445762dc6826969397502191530158_720w.jpg\" width=\"869\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-94c3d90fe1c4b03622db80acb92c0f81_720w.jpg\" width=\"429\"></span></p><p>2.push()方法：给数组添加元素,无须指定索引。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-c1a63a9f2c6cb0fe1f587230b3d8e928_720w.jpg\" width=\"524\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-5139eda330ab0d796128c0758ebf0f61_720w.jpg\" width=\"211\"></span>输出结果</p><p><br></p><p><br></p><p>3.concat()方法：连接两个数组，并返回一个新数组。首先是第一个数组的所有元素，然后是第二个数组的所有元素。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic4.zhimg.com/80/v2-ce5388db170bf8a2f856d2adbf60a2b7_720w.jpg\" width=\"634\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-69a6a6a3b29cad1d079babd9110a2570_720w.jpg\" width=\"331\"></span>输出结果</p><p><br></p><p><br></p><p>4.slice()方法：复制数组的一部分，不会改变原数组. 有两个参数，第一个参数表示复制的第一个元素的索引,第二个参数表示最后一个复制元素的后一个元素的索引（可选的）。如果没有第二个参数，则复制从第一个参数表示的元素索引的元素到数组结尾。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic4.zhimg.com/80/v2-0d5d21f1c8b74c19133d3c829433714b_720w.jpg\" width=\"525\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic3.zhimg.com/80/v2-fa344f3205529e492335c640e7e10d86_720w.jpg\" width=\"206\"></span>输出结果</p><p>5.join()方法：将数组中的所有元素连接起来，并返回一个字符串。允许指定在连接数组元素时插入其间的任意字符。该方法仅有一个参数，即在元素之间插入的字符串。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-d33d6bd21c9f3a12d46504408d62cb34_720w.jpg\" width=\"515\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-1389910baadc24f48142cb5f93f84cc5_720w.png\" width=\"184\"></span>输出结果</p><p>6.sort()方法：对数组进行升序排序，根据Unicode字符编码的十进制大小进行排序。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-6ebc8220b049bdfd26887fb547c6bfd1_720w.jpg\" width=\"521\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic3.zhimg.com/80/v2-4aaf697392d9bb7d443e7124c85762ba_720w.png\" width=\"119\"></span>输出结果</p><p>7.reverse()方法：反转数组元素的顺序。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-7fb468fb9215041b430d08fc4397c810_720w.jpg\" width=\"529\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-7cba6022c954f8839566c412f1cdfb80_720w.png\" width=\"128\"></span>输出结果</p><p>8.indexOf()方法：返回某元素在数组中的第一个出现位置。如果在数组中没有找到元素，返回-1。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-5fc47221901d1bb3258ee55b5eb80124_720w.jpg\" width=\"1228\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-99f7c4625209d90b16dbf24c1f817024_720w.jpg\" width=\"368\"></span>索引从0开始</p><p>9.lastIndexOf()方法：返回某元素在数组中的最后一个出现位置。如果在数组中没有找到元素，返回-1。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic3.zhimg.com/80/v2-c4d9741cd9b9330ee0db91a731b4cc6e_720w.jpg\" width=\"1216\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic3.zhimg.com/80/v2-53b9e723b95d99da6b77c827f07cb8da_720w.jpg\" width=\"373\"></span>索引从0开始</p><p>10.every()方法：测试数组中的所有元素是否通过了函数中的测试。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-791acb86150e18e2670bdfd49563adb5_720w.jpg\" width=\"1112\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-77f42223c044564b82301c0423e81dbd_720w.png\" width=\"408\"></span>未通过</p><p>11.some()方法：测试数组中的某些元素是否通过了函数中的测试。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-25d191f158e9f961fe52c1d51c1b79b1_720w.jpg\" width=\"1099\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-6892fe92a0c45cdf3f17f1ee88621c9d_720w.png\" width=\"392\"></span>通过</p><p>12.filter()方法：对数组中的每个元素执行某函数，如果该函数对某个元素返回true，就把该元素添加到filter()方法返回的另一个数组中。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic3.zhimg.com/80/v2-6076597b330fc02d4e104c170218ffc6_720w.jpg\" width=\"828\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic1.zhimg.com/80/v2-a227eb96fd132ae2acc93b7769ac4b10_720w.jpg\" width=\"278\"></span></p><p>13.forEach()方法：对数组中的每个元素都执行操作，没有返回值。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic2.zhimg.com/80/v2-b728036ffc7c52301a6ddcfee0861f19_720w.jpg\" width=\"667\"></span></p><p>14.map()方法：对数组中的每个元素都执行一个给定函数，但也返回一个包含函数执行结果的新数组。</p><p><span style=\"background-color: transparent;\"><img src=\"https://pic3.zhimg.com/80/v2-0ed701e7777688f6de179c17ea887026_720w.jpg\" width=\"728\"></span></p><p><span style=\"background-color: transparent;\"><img src=\"https://pic3.zhimg.com/80/v2-740b1dc711d3f77349ed50f95fe4c392_720w.png\" width=\"139\"></span></p><p><br></p>', 'Sadmin', '2020-12-30 02:35:09', null, null, null, null, '0');
 INSERT INTO `articleinfo` VALUES ('10001', 'JavaScript中Date对象的各种格式', '<p>&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;localTime&nbsp;=&nbsp;new&nbsp;Date();</p><p>&nbsp;&nbsp;&nbsp;&nbsp;Date对象只保存了自UTC时间1970年1月1日午夜到客户端计算机时钟的日期时间的毫秒数</p><p><br></p><p>&nbsp;&nbsp;&nbsp;&nbsp;toUTCString()方法将localTime中的日期和时间转换为对应的UTC日期和时间。Thu,&nbsp;06&nbsp;Aug&nbsp;2020&nbsp;02:34:21&nbsp;GMT</p><p><br></p><p>&nbsp;&nbsp;&nbsp;&nbsp;toLocaleString()方法返回本地日期和时间值&nbsp;&nbsp;2020/8/6&nbsp;上午10:34:21</p><p><br></p><p>&nbsp;&nbsp;&nbsp;&nbsp;getTimezoneOffset()方法返回本地时间与UTC时间之间的差值（以分钟为单位）&nbsp;&nbsp;-480</p><p><br></p><p>&nbsp;&nbsp;&nbsp;&nbsp;toLocaleTimeString()显示用户在其计算机上指定的时间&nbsp;&nbsp;上午10:34:21</p><p><br></p><p>&nbsp;&nbsp;&nbsp;&nbsp;toTimeString()显示时间部分和对应的时区&nbsp;&nbsp;10:34:21&nbsp;GMT+0800&nbsp;(中国标准时间)</p><p><br></p><p>&nbsp;&nbsp;&nbsp;&nbsp;toLocaleDateString()方法按用户在其计算机上设定的格式显示日期。2020/8/6</p><p><br></p><p>&nbsp;&nbsp;&nbsp;toDateString()方法使用标准格式显示用户计算机上的当前日期。Thu&nbsp;Aug&nbsp;06&nbsp;2020</p><p><br></p><p>&nbsp;&nbsp;&nbsp;&nbsp;toISOString()方法，以ISO格式字符串的形式返回日期和时间，格式：YYYY-MM-DDTHH:mm:ss.sssZ&nbsp;&nbsp;&nbsp;T将日期和时间分隔开&nbsp;末尾的Z表示UTC时区</p>', 'Sadmin', '2020-12-30 08:39:11', null, null, null, null, '0');
+INSERT INTO `articleinfo` VALUES ('10025', '测试', '<p>踩踩踩踩踩踩</p>', 'Sadmin', '2021/3/29 11:58:09', null, null, null, null, '0');
 
 -- ----------------------------
 -- Table structure for `articlestate`
@@ -96,8 +123,9 @@ CREATE TABLE `articlestate` (
 -- ----------------------------
 -- Records of articlestate
 -- ----------------------------
+INSERT INTO `articlestate` VALUES ('10025', '1');
+INSERT INTO `articlestate` VALUES ('10000', '2');
 INSERT INTO `articlestate` VALUES ('10001', '3');
-INSERT INTO `articlestate` VALUES ('10000', '4');
 
 -- ----------------------------
 -- Table structure for `articletype`
@@ -115,6 +143,7 @@ CREATE TABLE `articletype` (
 -- ----------------------------
 -- Records of articletype
 -- ----------------------------
+INSERT INTO `articletype` VALUES ('10025', '101');
 INSERT INTO `articletype` VALUES ('10000', '102');
 INSERT INTO `articletype` VALUES ('10001', '102');
 
@@ -137,6 +166,100 @@ INSERT INTO `checkstate` VALUES ('100', '1', '待审核');
 INSERT INTO `checkstate` VALUES ('101', '2', '仅后台用户可见');
 INSERT INTO `checkstate` VALUES ('102', '3', '所有用户可见');
 INSERT INTO `checkstate` VALUES ('103', '4', '仅管理员可见');
+
+-- ----------------------------
+-- Table structure for `childrencomment`
+-- ----------------------------
+DROP TABLE IF EXISTS `childrencomment`;
+CREATE TABLE `childrencomment` (
+  `parentId` int NOT NULL,
+  `childId` int NOT NULL,
+  `replyId` int DEFAULT NULL,
+  PRIMARY KEY (`childId`),
+  KEY `fk_ccpi` (`parentId`),
+  KEY `fk_ccri` (`replyId`),
+  CONSTRAINT `fk_ccci` FOREIGN KEY (`childId`) REFERENCES `comment` (`commentId`),
+  CONSTRAINT `fk_ccpi` FOREIGN KEY (`parentId`) REFERENCES `comment` (`commentId`),
+  CONSTRAINT `fk_ccri` FOREIGN KEY (`replyId`) REFERENCES `comment` (`commentId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of childrencomment
+-- ----------------------------
+INSERT INTO `childrencomment` VALUES ('100', '103', null);
+INSERT INTO `childrencomment` VALUES ('100', '104', '103');
+
+-- ----------------------------
+-- Table structure for `comment`
+-- ----------------------------
+DROP TABLE IF EXISTS `comment`;
+CREATE TABLE `comment` (
+  `commentId` int NOT NULL AUTO_INCREMENT,
+  `commentContent` varchar(200) NOT NULL,
+  `commentTime` varchar(50) NOT NULL,
+  `ISDELETE` tinyint DEFAULT '0',
+  `DELETETIME` varchar(50) DEFAULT NULL,
+  `DELETEACC` varchar(6) DEFAULT NULL,
+  PRIMARY KEY (`commentId`),
+  KEY `fk_delacc` (`DELETEACC`),
+  CONSTRAINT `fk_delacc` FOREIGN KEY (`DELETEACC`) REFERENCES `users` (`userAccount`)
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of comment
+-- ----------------------------
+INSERT INTO `comment` VALUES ('100', '哈哈哈哈哈', '2021/3/29 15:08:44', '0', null, null);
+INSERT INTO `comment` VALUES ('101', '测试测试', '2021/3/29 15:08:44', '0', null, null);
+INSERT INTO `comment` VALUES ('102', '参数', '2021/3/29 15:10:44', '1', '2021/3/29 18:25:20', 'Sadmin');
+INSERT INTO `comment` VALUES ('103', '子评论', '2021/3/29 15:08:44', '0', null, null);
+INSERT INTO `comment` VALUES ('104', '回复子评论', '2021/3/29 15:08:44', '0', null, null);
+INSERT INTO `comment` VALUES ('105', '踩踩踩踩踩踩踩踩踩', '2021/3/29 15:08:44', '0', null, null);
+INSERT INTO `comment` VALUES ('106', '哈哈哈哈的事实', '2021/3/29 15:08:44', '0', null, null);
+
+-- ----------------------------
+-- Table structure for `commentcheckstate`
+-- ----------------------------
+DROP TABLE IF EXISTS `commentcheckstate`;
+CREATE TABLE `commentcheckstate` (
+  `stateId` int NOT NULL,
+  `commentId` int NOT NULL,
+  `checkAcc` varchar(6) DEFAULT NULL,
+  `checkTime` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`commentId`),
+  KEY `fk_ccssi` (`stateId`),
+  KEY `fk_ccsacc` (`checkAcc`),
+  CONSTRAINT `fk_ccsacc` FOREIGN KEY (`checkAcc`) REFERENCES `users` (`userAccount`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ccsci` FOREIGN KEY (`commentId`) REFERENCES `comment` (`commentId`),
+  CONSTRAINT `fk_ccssi` FOREIGN KEY (`stateId`) REFERENCES `commentstate` (`stateId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of commentcheckstate
+-- ----------------------------
+INSERT INTO `commentcheckstate` VALUES ('3', '100', 'Sadmin', '2021/3/29 18:25:13');
+INSERT INTO `commentcheckstate` VALUES ('2', '101', 'Sadmin', '2021/3/29 18:24:22');
+INSERT INTO `commentcheckstate` VALUES ('1', '102', null, null);
+INSERT INTO `commentcheckstate` VALUES ('3', '103', 'aibin', '2021/3/29 18:30:29');
+INSERT INTO `commentcheckstate` VALUES ('1', '104', null, null);
+INSERT INTO `commentcheckstate` VALUES ('1', '105', null, null);
+INSERT INTO `commentcheckstate` VALUES ('1', '106', null, null);
+
+-- ----------------------------
+-- Table structure for `commentstate`
+-- ----------------------------
+DROP TABLE IF EXISTS `commentstate`;
+CREATE TABLE `commentstate` (
+  `stateId` int NOT NULL AUTO_INCREMENT,
+  `stateDes` varchar(50) NOT NULL,
+  PRIMARY KEY (`stateId`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of commentstate
+-- ----------------------------
+INSERT INTO `commentstate` VALUES ('1', '待审核');
+INSERT INTO `commentstate` VALUES ('2', '审核通过');
+INSERT INTO `commentstate` VALUES ('3', '审核不通过');
 
 -- ----------------------------
 -- Table structure for `power`
@@ -267,6 +390,12 @@ INSERT INTO `users` VALUES ('102', 'yujuan', 'w1yujuan123', 'Sadmin', '2021/3/27
 -- ----------------------------
 DROP VIEW IF EXISTS `articlelist`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `articlelist` AS select `ai`.`articleId` AS `articleId`,`ai`.`articleTitle` AS `articleTitle`,`ai`.`articleContent` AS `articleContent`,`u`.`userName` AS `author`,`ai`.`ADDACC` AS `ADDACC`,`ai`.`ADDTIME` AS `addtime`,`ac`.`categoryType` AS `categoryType`,`cs`.`stateDes` AS `stateDes`,`cs`.`stateNum` AS `stateNum`,`ai`.`ISDELETE` AS `isdelete` from (((((`articleinfo` `ai` join `articletype` `ap` on((`ai`.`articleId` = `ap`.`articleId`))) join `articlecategory` `ac` on((`ap`.`categoryId` = `ac`.`categoryId`))) join `articlestate` `ars` on((`ai`.`articleId` = `ars`.`articleId`))) join `checkstate` `cs` on((`ars`.`stateNum` = `cs`.`stateNum`))) join `userinfo` `u` on((`ai`.`ADDACC` = `u`.`userAccount`))) ;
+
+-- ----------------------------
+-- View structure for `commentlist`
+-- ----------------------------
+DROP VIEW IF EXISTS `commentlist`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `commentlist` AS select `c`.`commentId` AS `commentId`,`c`.`commentContent` AS `commentContent`,`c`.`commentTime` AS `commentTime`,`ai`.`articleTitle` AS `articleTitle`,`ai`.`articleId` AS `articleId`,`ct`.`stateDes` AS `stateDes`,`c`.`ISDELETE` AS `isDelete`,`u`.`userName` AS `auditor`,`ccm`.`parentId` AS `parentId`,`ccm`.`replyId` AS `replyId` from ((((((`comment` `c` join `articlecomment` `ac` on((`c`.`commentId` = `ac`.`commentId`))) join `articleinfo` `ai` on((`ac`.`articleId` = `ai`.`articleId`))) join `commentcheckstate` `ccs` on((`c`.`commentId` = `ccs`.`commentId`))) join `commentstate` `ct` on((`ccs`.`stateId` = `ct`.`stateId`))) left join `userinfo` `u` on((`u`.`userAccount` = `ccs`.`checkAcc`))) left join `childrencomment` `ccm` on((`ccm`.`childId` = `c`.`commentId`))) ;
 
 -- ----------------------------
 -- View structure for `userlist`
