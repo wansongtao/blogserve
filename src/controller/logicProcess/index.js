@@ -1255,6 +1255,30 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取文章内容
+     * @param {*} req {articleId} = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {articleContent}, message: '成功', success: true}
+     */
+    static async blogArticleContent(req, res) {
+        let { articleId } = req.query;
+
+        if (isNaN(Number(articleId))) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '文章id错误',
+                success: false
+            });
+            return;
+        }
+
+        const message = await Process.article.blogArticleContent(Number(articleId));
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1285,5 +1309,6 @@ module.exports = {
     checkComment: Process.checkComment,
     blogUserInfo: Process.blogUserInfo,
     blogHotArticles: Process.blogHotArticles,
-    blogNewArticles: Process.blogNewArticles
+    blogNewArticles: Process.blogNewArticles,
+    blogArticleContent: Process.blogArticleContent
 };

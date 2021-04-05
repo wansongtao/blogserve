@@ -965,6 +965,46 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 获取文章内容
+     * @param {number} articleId
+     * @returns {object} {code: 200, data: {articleContent}, message: '成功', success: true}
+     */
+    static async blogArticleContent(articleId) {
+        const queryStr = 'SELECT articleContent from articlelist where isdelete = ? and articleId = ?';
+
+        const data = await Article.database.query(queryStr, [0, articleId]);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    articleContent: data[0].articleContent
+                },
+                message: '获取成功',
+                success: true
+            };
+
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '文章内容获取失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -983,5 +1023,6 @@ module.exports = {
     delComment: Article.delComment,
     checkComment: Article.checkComment,
     blogHotArticles: Article.blogHotArticles,
-    blogNewArticles: Article.blogNewArticles
+    blogNewArticles: Article.blogNewArticles,
+    blogArticleContent: Article.blogArticleContent
 };
