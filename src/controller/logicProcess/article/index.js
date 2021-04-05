@@ -1,3 +1,4 @@
+
 /**
  * @description 文章模块
  * @author wansongtao
@@ -1052,6 +1053,49 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 搜索文章
+     * @param {string} keyword
+     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle}]}, message: '成功', success: true}
+     */
+    static async blogSearchArticle(keyword) {
+        // 模糊查询文章
+        const sqlStr = `SELECT articleId, articleTitle from (SELECT articleId, articleTitle, author, addtime 
+            FROM articlelist WHERE isdelete = ? and stateNum = ?) AS new WHERE articleTitle REGEXP '${keyword}' 
+            OR author REGEXP '${keyword}' OR addtime REGEXP '${keyword}' limit 10`;
+
+        const data = await Article.database.query(sqlStr, [0, 3]);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    articles: data
+                },
+                message: '获取成功',
+                success: true
+            };
+
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '没有相关文章',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -1072,5 +1116,6 @@ module.exports = {
     blogHotArticles: Article.blogHotArticles,
     blogNewArticles: Article.blogNewArticles,
     blogArticleContent: Article.blogArticleContent,
-    blogCommentList: Article.blogCommentList
+    blogCommentList: Article.blogCommentList,
+    blogSearchArticle: Article.blogSearchArticle
 };

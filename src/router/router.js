@@ -107,6 +107,9 @@ class Router {
 
     // 评论列表接口
     this.myRouter.get('/blog/getcommentlist', process.blogCommentList);
+
+    // 搜索文章接口
+    this.myRouter.get('/blog/searcharticle', process.blogSearchArticle);
   }
 
   /**

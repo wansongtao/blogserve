@@ -1307,6 +1307,32 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 搜索文章, 标题、作者、时间
+     * @param {*} req { keyword } = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle}]}, message: '成功', success: true}
+     */
+    static async blogSearchArticle(req, res) {
+        let {
+            keyword
+        } = req.query;
+
+        if (keyword == undefined) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '关键词错误',
+                success: false
+            });
+            return;
+        }
+
+        const message = await Process.article.blogSearchArticle(keyword);
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1339,5 +1365,6 @@ module.exports = {
     blogHotArticles: Process.blogHotArticles,
     blogNewArticles: Process.blogNewArticles,
     blogArticleContent: Process.blogArticleContent,
-    blogCommentList: Process.blogCommentList
+    blogCommentList: Process.blogCommentList,
+    blogSearchArticle: Process.blogSearchArticle
 };
