@@ -1010,6 +1010,48 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 获取文章评论列表
+     * @param {number} articleId
+     * @returns {object} {code: 200, data: {commentList}, message: '成功', success: true}
+     */
+    static async blogCommentList(articleId) {
+        // 查询该文章下审核通过的审核列表
+        const queryStr = `SELECT commentId, commentContent, commentTime, parentId, replyId from commentlist
+        where isdelete = ? and articleId = ? and stateDes = ?`;
+
+        const data = await Article.database.query(queryStr, [0, articleId, '审核通过']);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    commentList: data
+                },
+                message: '获取成功',
+                success: true
+            };
+
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '文章内容获取失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -1029,5 +1071,6 @@ module.exports = {
     checkComment: Article.checkComment,
     blogHotArticles: Article.blogHotArticles,
     blogNewArticles: Article.blogNewArticles,
-    blogArticleContent: Article.blogArticleContent
+    blogArticleContent: Article.blogArticleContent,
+    blogCommentList: Article.blogCommentList
 };

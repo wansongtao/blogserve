@@ -1263,7 +1263,9 @@ class Process {
      * @returns {object} {code: 200, data: {articleContent}, message: '成功', success: true}
      */
     static async blogArticleContent(req, res) {
-        let { articleId } = req.query;
+        let {
+            articleId
+        } = req.query;
 
         if (isNaN(Number(articleId))) {
             res.send({
@@ -1276,6 +1278,32 @@ class Process {
         }
 
         const message = await Process.article.blogArticleContent(Number(articleId));
+
+        res.send(message);
+    }
+
+    /**
+     * @description 获取文章评论列表
+     * @param {*} req {articleId} = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {commentList}, message: '成功', success: true}
+     */
+    static async blogCommentList(req, res) {
+        let {
+            articleId
+        } = req.query;
+
+        if (isNaN(Number(articleId))) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '文章id错误',
+                success: false
+            });
+            return;
+        }
+
+        const message = await Process.article.blogCommentList(Number(articleId));
 
         res.send(message);
     }
@@ -1310,5 +1338,6 @@ module.exports = {
     blogUserInfo: Process.blogUserInfo,
     blogHotArticles: Process.blogHotArticles,
     blogNewArticles: Process.blogNewArticles,
-    blogArticleContent: Process.blogArticleContent
+    blogArticleContent: Process.blogArticleContent,
+    blogCommentList: Process.blogCommentList
 };
