@@ -887,6 +887,45 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 热门文章列表
+     * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
+     */
+    static async blogHotArticles() {
+        const queryStr = 'SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where isdelete = ? ORDER BY hot DESC';
+
+        const data = await Article.database.query(queryStr, [0]);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    articles: data
+                },
+                message: '获取成功',
+                success: true
+            };
+
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '文章列表获取失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -903,5 +942,6 @@ module.exports = {
     delCategory: Article.delCategory,
     queryAllComment: Article.queryAllComment,
     delComment: Article.delComment,
-    checkComment: Article.checkComment
+    checkComment: Article.checkComment,
+    blogHotArticles: Article.blogHotArticles
 };

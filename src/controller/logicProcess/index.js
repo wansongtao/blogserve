@@ -1223,17 +1223,23 @@ class Process {
      * @description 获取用户信息
      * @param {*} req 
      * @param {*} res 
-     * @returns {object} {code: 200, data: {name,avatar,roles}, message: '登录成功', success: true}
+     * @returns {object} {code: 200, data: {userName, birthday, weChat, qqAcc, 
+            email, hobby, personalDes, lifeMotto}, message: '成功', success: true}
      */
     static async blogUserInfo(req, res) {
-        let message = {
-            code: 400,
-            data: {},
-            message: '服务器繁忙，请稍后再试',
-            success: false
-        };
+        const message = await Process.users.blogUserInfo();
 
-        message = await Process.users.blogUserInfo();
+        res.send(message);
+    }
+
+    /**
+     * @description 获取热门文章列表
+     * @param {*} req 
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
+     */
+    static async blogHotArticles(req, res) {
+        const message = await Process.article.blogHotArticles();
 
         res.send(message);
     }
@@ -1265,5 +1271,6 @@ module.exports = {
     allComment: Process.allComment,
     delComment: Process.delComment,
     checkComment: Process.checkComment,
-    blogUserInfo: Process.blogUserInfo
+    blogUserInfo: Process.blogUserInfo,
+    blogHotArticles: Process.blogHotArticles
 };

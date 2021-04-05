@@ -95,6 +95,9 @@ class Router {
     // 前台接口
     // 获取用户信息
     this.myRouter.get('/blog/getuserinfo', process.blogUserInfo);
+
+    // 热门文章接口
+    this.myRouter.get('/blog/gethotarticle', process.blogHotArticles);
   }
 
   /**
