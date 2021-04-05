@@ -893,9 +893,11 @@ class Article {
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
     static async blogHotArticles() {
-        const queryStr = 'SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where isdelete = ? ORDER BY hot DESC limit 10';
+        // 查询用户可以看见的文章并按热度排序
+        const queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist 
+        where isdelete = ? and stateNum = ? ORDER BY hot DESC limit 10`;
 
-        const data = await Article.database.query(queryStr, [0]);
+        const data = await Article.database.query(queryStr, [0, 3]);
         let message = {};
 
         if (data === false) {
@@ -932,9 +934,11 @@ class Article {
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
     static async blogNewArticles() {
-        const queryStr = 'SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where isdelete = ? ORDER BY addTime DESC limit 10';
+        // 查询用户可以看见的文章并按时间排序
+        const queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist 
+        where isdelete = ? and stateNum = ? ORDER BY addTime DESC limit 10`;
 
-        const data = await Article.database.query(queryStr, [0]);
+        const data = await Article.database.query(queryStr, [0, 3]);
         let message = {};
 
         if (data === false) {
@@ -972,9 +976,10 @@ class Article {
      * @returns {object} {code: 200, data: {articleContent}, message: '成功', success: true}
      */
     static async blogArticleContent(articleId) {
-        const queryStr = 'SELECT articleContent from articlelist where isdelete = ? and articleId = ?';
+        // 查询用户可以看见的文章内容
+        const queryStr = 'SELECT articleContent from articlelist where isdelete = ? and articleId = ? and stateNum = ?';
 
-        const data = await Article.database.query(queryStr, [0, articleId]);
+        const data = await Article.database.query(queryStr, [0, articleId, 3]);
         let message = {};
 
         if (data === false) {
