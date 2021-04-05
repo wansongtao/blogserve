@@ -669,6 +669,69 @@ class Users {
 
         return message;
     }
+
+    /**
+     * @description 获取用户信息
+     * @returns {Promise} {code: 200, data: {userName, birthday, weChat, qqAcc, 
+            email, hobby, personalDes, lifeMotto}, message: '成功', success: true}
+     */
+    static async blogUserInfo() {
+        const sqlStr = `select userName, birthday, weChat, qqAcc, 
+            email, hobby, personalDes, lifeMotto from userinfo where ISDELETE = ? and userAccount = ?`;
+
+        const data = await Users.database.query(sqlStr, [0, 'sadmin']);
+        let message = null;
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        } else if (data.length > 0) {
+            // mysql的一个bug：数据库里存的为五月四号但查询出来的为五月三号（date类型）
+            let birthday = null;
+            if (data[0].birthday != undefined) {
+                birthday = new Date(data[0].birthday);
+                birthday = birthday.setDate(birthday.getDate() + 1);
+                birthday = new Date(birthday).toISOString();
+                birthday = birthday.substr(0, 10);
+            }
+
+            let hobby = data[0].hobby;
+            if (hobby.indexOf('/') !== -1) {
+                hobby = hobby.split('/')
+            } else {
+                hobby = [hobby]
+            }
+
+            message = {
+                code: 200,
+                data: {
+                    name: data[0].userName,
+                    birthday: birthday,
+                    weChat: data[0].weChat,
+                    qqAcc: data[0].qqAcc,
+                    email: data[0].email,
+                    hobby,
+                    personalDes: data[0].personalDes,
+                    lifeMotto: data[0].lifeMotto,
+                },
+                message: '获取用户信息成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '未查询到任何相关信息',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -681,5 +744,6 @@ module.exports = {
     resetUserPwd: Users.resetUserPwd,
     getPowerList: Users.getPowerList,
     addUser: Users.addUser,
-    updatePwd: Users.updatePwd
+    updatePwd: Users.updatePwd,
+    blogUserInfo: Users.blogUserInfo
 };

@@ -1218,6 +1218,25 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取用户信息
+     * @param {*} req 
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {name,avatar,roles}, message: '登录成功', success: true}
+     */
+    static async blogUserInfo(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        message = await Process.users.blogUserInfo();
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1245,5 +1264,6 @@ module.exports = {
     delCategory: Process.delCategory,
     allComment: Process.allComment,
     delComment: Process.delComment,
-    checkComment: Process.checkComment
+    checkComment: Process.checkComment,
+    blogUserInfo: Process.blogUserInfo
 };

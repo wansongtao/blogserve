@@ -90,6 +90,11 @@ class Router {
 
     // 评论审核
     this.myRouter.post('/admin/checkcomment', process.checkComment);
+
+
+    // 前台接口
+    // 获取用户信息
+    this.myRouter.get('/blog/getuserinfo', process.blogUserInfo);
   }
 
   /**
