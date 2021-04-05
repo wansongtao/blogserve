@@ -978,7 +978,7 @@ class Article {
      */
     static async blogArticleContent(articleId) {
         // 查询用户可以看见的文章内容
-        const queryStr = 'SELECT articleContent from articlelist where isdelete = ? and articleId = ? and stateNum = ?';
+        const queryStr = 'SELECT articleContent, hot from articlelist where isdelete = ? and articleId = ? and stateNum = ?';
 
         const data = await Article.database.query(queryStr, [0, articleId, 3]);
         let message = {};
@@ -991,6 +991,10 @@ class Article {
                 success: false
             };
         } else if (data.length > 0) {
+            // 文章热度加一
+            const sqlStr = 'update articleinfo set articleHot = ? where articleId = ?';
+            Article.database.update(sqlStr, [Number(data[0].hot) + 1, articleId]);
+
             message = {
                 code: 200,
                 data: {
