@@ -1243,6 +1243,18 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取最新文章列表
+     * @param {*} req 
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
+     */
+    static async blogNewArticles(req, res) {
+        const message = await Process.article.blogNewArticles();
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1272,5 +1284,6 @@ module.exports = {
     delComment: Process.delComment,
     checkComment: Process.checkComment,
     blogUserInfo: Process.blogUserInfo,
-    blogHotArticles: Process.blogHotArticles
+    blogHotArticles: Process.blogHotArticles,
+    blogNewArticles: Process.blogNewArticles
 };

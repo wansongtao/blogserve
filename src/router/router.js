@@ -98,6 +98,9 @@ class Router {
 
     // 热门文章接口
     this.myRouter.get('/blog/gethotarticle', process.blogHotArticles);
+
+    // 最新文章接口
+    this.myRouter.get('/blog/getnewarticle', process.blogNewArticles);
   }
 
   /**
