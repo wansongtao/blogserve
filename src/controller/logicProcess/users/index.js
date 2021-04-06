@@ -255,6 +255,15 @@ class Users {
             if (data !== false && data.length > 0) {
                 message.data.pendingArticle = data[0].articleCount;
             }
+
+            // 查询待审核的留言数量
+            sqlStr = 'select count(msgId) as msgCount from messagelist where isDelete = ? and stateDes = ?';
+
+            const msg = await Users.database.query(sqlStr, [0, '待审核']);
+
+            if (msg !== false && msg.length > 0) {
+                message.data.pendingMsg = msg[0].msgCount;
+            }
         }
 
         return message;
