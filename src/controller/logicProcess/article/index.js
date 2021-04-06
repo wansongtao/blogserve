@@ -1,4 +1,3 @@
-
 /**
  * @description 文章模块
  * @author wansongtao
@@ -1100,6 +1099,56 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 发表评论
+     * @param {string} data {commentContent, parentId, replyId}
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async blogAddComment({
+        commentContent,
+        parentId,
+        replyId
+    }) {
+        let message = null;
+        let data = null;
+
+        if (parentId == undefined) {
+            const sqlStr = `insert into comment set ?`;
+
+            const curDate = new Date();
+            const myDate = curDate.toLocaleDateString();
+            const myTime = curDate.toTimeString().substr(0, 8);
+            const commentTime = myDate + ' ' + myTime;
+
+            data = await Article.database.insert(sqlStr, {
+                commentContent,
+                commentTime
+            });
+        }
+        else {
+            data = await Article.database.insertComment({commentContent, parentId, replyId});
+        }
+
+        if (data) {
+            message = {
+                code: 200,
+                data: {},
+                message: '发表评论成功，审核中',
+                success: true
+            };
+        }
+        else {
+            message = {
+                code: 401,
+                data: {},
+                message: '发表评论失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -1121,5 +1170,6 @@ module.exports = {
     blogNewArticles: Article.blogNewArticles,
     blogArticleContent: Article.blogArticleContent,
     blogCommentList: Article.blogCommentList,
-    blogSearchArticle: Article.blogSearchArticle
+    blogSearchArticle: Article.blogSearchArticle,
+    blogAddComment: Article.blogAddComment
 };

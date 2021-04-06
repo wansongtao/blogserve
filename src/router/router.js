@@ -110,6 +110,9 @@ class Router {
 
     // 搜索文章接口
     this.myRouter.get('/blog/searcharticle', process.blogSearchArticle);
+
+    // 发表评论接口
+    this.myRouter.post('/blog/addcomment', process.blogAddComment);
   }
 
   /**

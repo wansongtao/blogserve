@@ -183,7 +183,7 @@ class Database {
   static async update(sqlStr, data) {
     // 外部使用await是获取不到reject抛出的值的，但是可以使用catch获取。
     return new Promise((resolve, reject) => {
-      // 验证参数数据类型
+        // 验证参数数据类型
         const isVerify = Database.untils.verifyParams([{
           value: sqlStr,
           type: 'String'
@@ -325,7 +325,10 @@ class Database {
 
       sqlStr = 'INSERT INTO articlestate set ?';
 
-      result = await Database._transactionExecuteSql_(conn, sqlStr, {articleId, stateNum: 1}).catch(() => {
+      result = await Database._transactionExecuteSql_(conn, sqlStr, {
+        articleId,
+        stateNum: 1
+      }).catch(() => {
         console.error('Class Database => insertArticle(): 插入文章状态失败');
         return false;
       });
@@ -352,38 +355,111 @@ class Database {
    * @returns 插入成功返回true，失败返回false
    */
   static async insertUser(data) {
-    const {userAccount,userPassword,ADDACC,ADDTIME,powerId,userName,userGender} = data;
+    const {
+      userAccount,
+      userPassword,
+      ADDACC,
+      ADDTIME,
+      powerId,
+      userName,
+      userGender
+    } = data;
     let executeConn = null;
 
     return Database._getConn_().then((conn) => {
-      return Database._beginTransaction_(conn);
-    })
-    .then((conn) => {
-      // 向用户表插入数据
-      const sqlStr = 'insert into users set ?';
-      executeConn = conn;
+        return Database._beginTransaction_(conn);
+      })
+      .then((conn) => {
+        // 向用户表插入数据
+        const sqlStr = 'insert into users set ?';
+        executeConn = conn;
 
-      return Database._transactionExecuteSql_(executeConn, sqlStr, {userAccount, userPassword, ADDACC, ADDTIME});
-    })
-    .then(() => {
-      // 向用户信息表插入数据
-      const sqlStr = 'insert into userinfo set ?';
+        return Database._transactionExecuteSql_(executeConn, sqlStr, {
+          userAccount,
+          userPassword,
+          ADDACC,
+          ADDTIME
+        });
+      })
+      .then(() => {
+        // 向用户信息表插入数据
+        const sqlStr = 'insert into userinfo set ?';
 
-      return Database._transactionExecuteSql_(executeConn, sqlStr, {userAccount, userName, userGender});
-    })
-    .then(() => {
-      // 向用户权限表插入数据
-      const sqlStr = 'insert into userpower set ?';
+        return Database._transactionExecuteSql_(executeConn, sqlStr, {
+          userAccount,
+          userName,
+          userGender
+        });
+      })
+      .then(() => {
+        // 向用户权限表插入数据
+        const sqlStr = 'insert into userpower set ?';
 
-      return Database._transactionExecuteSql_(executeConn, sqlStr, {userAccount, powerId});
-    })
-    .then(() => {
-      // 提交
-      return Database._commitTransaction_(executeConn);
-    })
-    .catch(() => {
-      return false;
-    });
+        return Database._transactionExecuteSql_(executeConn, sqlStr, {
+          userAccount,
+          powerId
+        });
+      })
+      .then(() => {
+        // 提交
+        return Database._commitTransaction_(executeConn);
+      })
+      .catch(() => {
+        return false;
+      });
+  }
+
+  /**
+   * @description 插入评论
+   * @param {object} data {commentContent, parentId, replyId}
+   * @returns 插入成功返回true，失败返回false
+   */
+  static async insertComment({
+    commentContent,
+    parentId,
+    replyId
+  }) {
+    const curDate = new Date();
+    const myDate = curDate.toLocaleDateString();
+    const myTime = curDate.toTimeString().substr(0, 8);
+    const commentTime = myDate + ' ' + myTime;
+
+    let executeConn = null;
+
+    return Database._getConn_().then((conn) => {
+        // 开始事务
+        return Database._beginTransaction_(conn);
+      })
+      .then((conn) => {
+        // 向评论表插入数据
+        const sqlStr = `insert into comment set ?`;
+        executeConn = conn;
+
+        return Database._transactionExecuteSql_(executeConn, sqlStr, {
+          commentContent,
+          commentTime
+        });
+      })
+      .then((result) => {
+        // 向子评论表插入数据
+        const sqlStr = 'insert into childrencomment set ?';
+        const childId = result.insertId;
+
+        const data = {parentId, childId};
+
+        if (replyId != undefined) {
+          data.replyId = replyId;
+        }
+
+        return Database._transactionExecuteSql_(executeConn, sqlStr, data);
+      })
+      .then(() => {
+        // 提交事务
+        return Database._commitTransaction_(executeConn);
+      })
+      .catch(() => {
+        return false;
+      });
   }
 }
 
@@ -392,5 +468,6 @@ module.exports = {
   update: Database.update,
   insert: Database.insert,
   insertArticle: Database.insertArticle,
-  insertUser:Database.insertUser
+  insertUser: Database.insertUser,
+  insertComment: Database.insertComment
 };
