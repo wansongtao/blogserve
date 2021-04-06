@@ -1220,6 +1220,144 @@ class Process {
     }
 
     /**
+     * @description 获取留言列表
+     * @param {*} req {currentPage, pageSize}
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async getMessageList(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        const backVal = Process._getUserAccount_(req);
+        let {
+            currentPage,
+            pageSize
+        } = req.query;
+
+        if (backVal.userAccount) {
+            message = await Process.article.getMessageList({
+                userAccount: backVal.userAccount,
+                currentPage,
+                pageSize
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 删除留言
+     * @param {*} req {msgId} = req.body
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delMessage(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            msgId
+        } = req.body;
+
+        msgId = Number(msgId);
+        const isVerify = Process.untils.verifyParams([{
+            value: msgId,
+            type: 'number'
+        }]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.delMessage({
+                userAccount: backVal.userAccount,
+                msgId
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
+     * @description 留言审核
+     * @param {*} req {msgId, stateId} = req.body
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async checkMessage(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            msgId,
+            stateId
+        } = req.body;
+
+        const isVerify = Process.untils.verifyParams([{
+                value: msgId,
+                type: 'number'
+            },
+            {
+                value: stateId,
+                type: 'number'
+            }
+        ]);
+
+        if (!isVerify) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.checkMessage({
+                userAccount: backVal.userAccount,
+                msgId,
+                stateId
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
      * @description 获取用户信息
      * @param {*} req 
      * @param {*} res 
@@ -1446,6 +1584,9 @@ module.exports = {
     allComment: Process.allComment,
     delComment: Process.delComment,
     checkComment: Process.checkComment,
+    getMessageList: Process.getMessageList,
+    delMessage: Process.delMessage,
+    checkMessage: Process.checkMessage,
     blogUserInfo: Process.blogUserInfo,
     blogHotArticles: Process.blogHotArticles,
     blogNewArticles: Process.blogNewArticles,

@@ -889,6 +889,197 @@ class Article {
     }
 
     /**
+     * @description 查询留言列表
+     * @param {object} search {currentPage, pageSize}
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async getMessageList(search) {
+        let {
+            currentPage,
+            pageSize,
+            userAccount
+        } = search;
+
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001 && rolesId !== 10002) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        // 查询留言数量
+        let queryNumber = 'select count(msgId) as msgCount from messagelist where isDelete = ?';
+        let count = await Article.database.query(queryNumber, [0]);
+
+        if (count !== false && count.length > 0) {
+            count = count[0].msgCount;
+        } else {
+            count = 0;
+        }
+
+        if (isNaN(Number(currentPage))) {
+            // 当前页码不为数字，则默认第一页
+            currentPage = 1;
+        } else {
+            // 转为正整数
+            currentPage = Math.abs(currentPage).toFixed();
+        }
+
+        if (isNaN(Number(pageSize))) {
+            // 每页大小不为数字，则默认每页十条
+            pageSize = 10;
+        } else {
+            // 转为正整数
+            pageSize = Math.abs(pageSize).toFixed();
+        }
+
+        if ((currentPage - 1) * pageSize > count) {
+            // 在当前页码超出范围时，设为默认值
+            currentPage = 1;
+            pageSize = 10;
+        }
+
+        // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
+        let queryStr = `SELECT msgId, msgContent, addTime, checkAcc, checkTime, stateDes from messagelist where 
+            isDelete = ? ORDER BY msgId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+
+        const data = await Article.database.query(queryStr, [0]);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    messageList: data,
+                    count
+                },
+                message: '获取成功',
+                success: true
+            };
+
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '评论列表获取失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
+
+    /**
+     * @description 删除评论
+     * @param {object} param0 {userAccount, msgId}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async delMessage({
+        userAccount,
+        msgId
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const delTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update message set ISDELETE = ?, DELETEACC = ?, DELETETIME = ? where msgId = ?';
+
+        const result = await Article.database.update(sqlStr, [1, userAccount, delTime, msgId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '删除成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
+
+    /**
+     * @description 留言审核
+     * @param {object} param0 {userAccount, commentId, stateId}
+     * @returns {*} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async checkMessage({
+        userAccount,
+        msgId,
+        stateId
+    }) {
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001 && rolesId !== 10002) {
+            return {
+                code: 503,
+                data: {},
+                message: '权限不足',
+                success: false
+            };
+        }
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const checkTime = myDate + ' ' + myTime;
+
+        const sqlStr = 'update messagecheck set stateId = ?, checkACC = ?, checkTime = ? where msgId = ?';
+
+        const result = await Article.database.update(sqlStr, [stateId, userAccount, checkTime, msgId]);
+
+        let message = null;
+        if (result) {
+            message = {
+                code: 200,
+                data: {},
+                message: '审核成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        }
+
+        return message;
+    }
+
+    /**
      * @description 热门文章列表
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
@@ -1196,7 +1387,10 @@ class Article {
      * @param {object} search {currentPage, pageSize}
      * @returns {object} {code: 200, data: {messageList: [{msgContent, addTime}]}, message: '成功', success: true}
      */
-    static async queryMessage({currentPage, pageSize}) {
+    static async queryMessage({
+        currentPage,
+        pageSize
+    }) {
 
         if (isNaN(Number(currentPage))) {
             // 当前页码不为数字，则默认第一页
@@ -1266,6 +1460,9 @@ module.exports = {
     queryAllComment: Article.queryAllComment,
     delComment: Article.delComment,
     checkComment: Article.checkComment,
+    getMessageList: Article.getMessageList,
+    delMessage: Article.delMessage,
+    checkMessage: Article.checkMessage,
     blogHotArticles: Article.blogHotArticles,
     blogNewArticles: Article.blogNewArticles,
     blogArticleContent: Article.blogArticleContent,

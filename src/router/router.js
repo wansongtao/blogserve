@@ -91,6 +91,15 @@ class Router {
     // 评论审核
     this.myRouter.post('/admin/checkcomment', process.checkComment);
 
+    // 获取留言列表
+    this.myRouter.get('/admin/getmessage', process.getMessageList);
+
+    // 删除留言
+    this.myRouter.post('/admin/delmessage', process.delMessage);
+
+    // 留言审核
+    this.myRouter.post('/admin/checkmessage', process.checkMessage);
+
 
     // 前台接口
     // 获取用户信息
