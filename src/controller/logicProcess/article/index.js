@@ -1190,6 +1190,65 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 查询留言
+     * @param {object} search {currentPage, pageSize}
+     * @returns {object} {code: 200, data: {messageList: [{msgContent, addTime}]}, message: '成功', success: true}
+     */
+    static async queryMessage({currentPage, pageSize}) {
+
+        if (isNaN(Number(currentPage))) {
+            // 当前页码不为数字，则默认第一页
+            currentPage = 1;
+        } else {
+            // 转为正整数
+            currentPage = Math.abs(currentPage).toFixed();
+        }
+
+        if (isNaN(Number(pageSize))) {
+            // 每页大小不为数字，则默认每页十条
+            pageSize = 10;
+        } else {
+            // 转为正整数
+            pageSize = Math.abs(pageSize).toFixed();
+        }
+
+        // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
+        let queryStr = `SELECT msgContent, addTime from messagelist where isDelete = ? and stateDes = ? 
+        ORDER BY addTime DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+
+        const data = await Article.database.query(queryStr, [0, '审核通过']);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器错误',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    messageList: data,
+                },
+                message: '获取成功',
+                success: true
+            };
+
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '留言列表获取失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -1213,5 +1272,6 @@ module.exports = {
     blogCommentList: Article.blogCommentList,
     blogSearchArticle: Article.blogSearchArticle,
     blogAddComment: Article.blogAddComment,
-    blogAddMessage: Article.blogAddMessage
+    blogAddMessage: Article.blogAddMessage,
+    queryMessage: Article.queryMessage
 };

@@ -116,6 +116,9 @@ class Router {
 
     // 留言接口
     this.myRouter.post('/blog/addmessage', process.blogAddMessage);
+
+    // 获取留言列表接口
+    this.myRouter.get('/blog/getmessage', process.blogGetMessage);
   }
 
   /**

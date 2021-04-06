@@ -1391,6 +1391,33 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取留言列表
+     * @param {*} req {currentPage, pageSize}
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {messageList: [{msgContent, addTime}]}, message: '成功', success: true}
+     */
+    static async blogGetMessage(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            currentPage,
+            pageSize
+        } = req.query;
+
+        message = await Process.article.queryMessage({
+            currentPage,
+            pageSize
+        });
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1426,5 +1453,6 @@ module.exports = {
     blogCommentList: Process.blogCommentList,
     blogSearchArticle: Process.blogSearchArticle,
     blogAddComment: Process.blogAddComment,
-    blogAddMessage: Process.blogAddMessage
+    blogAddMessage: Process.blogAddMessage,
+    blogGetMessage: Process.blogGetMessage
 };
