@@ -1347,7 +1347,7 @@ class Process {
             replyId
         } = req.body;
 
-        if (typeof commentContent !== 'string') {
+        if (typeof commentContent !== 'string' || commentContent.trim().length === 0) {
             res.send({
                 code: 300,
                 data: {},
@@ -1362,6 +1362,32 @@ class Process {
             parentId,
             replyId
         });
+
+        res.send(message);
+    }
+
+    /**
+     * @description 留言
+     * @param {*} req { msgContent } = req.body
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async blogAddMessage(req, res) {
+        let {
+            msgContent
+        } = req.body;
+
+        if (typeof msgContent !== 'string' || msgContent.trim().length === 0) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '参数错误',
+                success: false
+            });
+            return;
+        }
+
+        const message = await Process.article.blogAddMessage(msgContent);
 
         res.send(message);
     }
@@ -1399,5 +1425,6 @@ module.exports = {
     blogArticleContent: Process.blogArticleContent,
     blogCommentList: Process.blogCommentList,
     blogSearchArticle: Process.blogSearchArticle,
-    blogAddComment: Process.blogAddComment
+    blogAddComment: Process.blogAddComment,
+    blogAddMessage: Process.blogAddMessage
 };

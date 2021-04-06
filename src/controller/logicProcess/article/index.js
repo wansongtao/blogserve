@@ -1125,9 +1125,12 @@ class Article {
                 commentContent,
                 commentTime
             });
-        }
-        else {
-            data = await Article.database.insertComment({commentContent, parentId, replyId});
+        } else {
+            data = await Article.database.insertComment({
+                commentContent,
+                parentId,
+                replyId
+            });
         }
 
         if (data) {
@@ -1137,12 +1140,50 @@ class Article {
                 message: '发表评论成功，审核中',
                 success: true
             };
-        }
-        else {
+        } else {
             message = {
                 code: 401,
                 data: {},
                 message: '发表评论失败',
+                success: false
+            };
+        }
+
+        return message;
+    }
+
+    /**
+     * @description 留言
+     * @param {string} msgContent
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async blogAddMessage(msgContent) {
+        let message = null;
+
+        const sqlStr = `insert into message set ?`;
+
+        const curDate = new Date();
+        const myDate = curDate.toLocaleDateString();
+        const myTime = curDate.toTimeString().substr(0, 8);
+        const addTime = myDate + ' ' + myTime;
+
+        const data = await Article.database.insert(sqlStr, {
+            msgContent,
+            addTime
+        });
+
+        if (data) {
+            message = {
+                code: 200,
+                data: {},
+                message: '留言成功，审核中',
+                success: true
+            };
+        } else {
+            message = {
+                code: 401,
+                data: {},
+                message: '留言失败',
                 success: false
             };
         }
@@ -1171,5 +1212,6 @@ module.exports = {
     blogArticleContent: Article.blogArticleContent,
     blogCommentList: Article.blogCommentList,
     blogSearchArticle: Article.blogSearchArticle,
-    blogAddComment: Article.blogAddComment
+    blogAddComment: Article.blogAddComment,
+    blogAddMessage: Article.blogAddMessage
 };

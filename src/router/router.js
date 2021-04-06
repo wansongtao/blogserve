@@ -113,6 +113,9 @@ class Router {
 
     // 发表评论接口
     this.myRouter.post('/blog/addcomment', process.blogAddComment);
+
+    // 留言接口
+    this.myRouter.post('/blog/addmessage', process.blogAddMessage);
   }
 
   /**
