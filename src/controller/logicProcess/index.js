@@ -1457,7 +1457,7 @@ class Process {
             keyword
         } = req.query;
 
-        if (keyword == undefined) {
+        if (!keyword) {
             res.send({
                 code: 300,
                 data: {},
