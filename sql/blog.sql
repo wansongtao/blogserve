@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80022
 File Encoding         : 65001
 
-Date: 2021-04-06 16:35:36
+Date: 2021-04-07 12:52:49
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -124,9 +124,9 @@ CREATE TABLE `articlestate` (
 -- ----------------------------
 -- Records of articlestate
 -- ----------------------------
-INSERT INTO `articlestate` VALUES ('10000', '2');
-INSERT INTO `articlestate` VALUES ('10025', '2');
+INSERT INTO `articlestate` VALUES ('10000', '3');
 INSERT INTO `articlestate` VALUES ('10001', '3');
+INSERT INTO `articlestate` VALUES ('10025', '3');
 
 -- ----------------------------
 -- Table structure for `articletype`
@@ -206,7 +206,7 @@ CREATE TABLE `comment` (
   PRIMARY KEY (`commentId`),
   KEY `fk_delacc` (`DELETEACC`),
   CONSTRAINT `fk_delacc` FOREIGN KEY (`DELETEACC`) REFERENCES `users` (`userAccount`)
-) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of comment
@@ -223,6 +223,7 @@ INSERT INTO `comment` VALUES ('108', '评论测试', '2021/4/6 11:40:18', '0', n
 INSERT INTO `comment` VALUES ('109', '子评论测试', '2021/4/6 11:42:04', '0', null, null);
 INSERT INTO `comment` VALUES ('110', '回复子评论测试', '2021/4/6 11:43:03', '0', null, null);
 INSERT INTO `comment` VALUES ('111', '回复子评论测试', '2021/4/6 14:18:15', '0', null, null);
+INSERT INTO `comment` VALUES ('122', '触发器测试', '2021/4/6 14:18:15', '0', null, null);
 
 -- ----------------------------
 -- Table structure for `commentcheckstate`
@@ -256,6 +257,7 @@ INSERT INTO `commentcheckstate` VALUES ('1', '108', null, null);
 INSERT INTO `commentcheckstate` VALUES ('1', '109', null, null);
 INSERT INTO `commentcheckstate` VALUES ('1', '110', null, null);
 INSERT INTO `commentcheckstate` VALUES ('1', '111', null, null);
+INSERT INTO `commentcheckstate` VALUES ('1', '122', null, null);
 
 -- ----------------------------
 -- Table structure for `commentstate`
@@ -468,6 +470,23 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- ----------------------------
 DROP VIEW IF EXISTS `userlist`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `u`.`userAccount` AS `userAccount`,`i`.`userName` AS `userName`,`i`.`userGender` AS `userGender`,`w`.`powerName` AS `powerName`,`u`.`ISDELETE` AS `ISDELETE`,`u`.`userId` AS `userId` from (((`users` `u` join `userinfo` `i` on((`u`.`userAccount` = `i`.`userAccount`))) join `userpower` `p` on((`u`.`userAccount` = `p`.`userAccount`))) join `power` `w` on((`p`.`powerId` = `w`.`powerId`))) ;
+DROP TRIGGER IF EXISTS `childcomment`;
+DELIMITER ;;
+CREATE TRIGGER `childcomment` BEFORE INSERT ON `childrencomment` FOR EACH ROW BEGIN 
+if new.parentId = new.replyId THEN 
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "parentId = replyId, error"; 
+END IF;
+
+IF new.parentId = new.childId THEN 
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'parentId = childId, error';
+END IF;
+
+IF new.childId = new.replyId THEN 
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'childId = replyId, error';
+END IF;
+END
+;;
+DELIMITER ;
 DROP TRIGGER IF EXISTS `addcommentstate`;
 DELIMITER ;;
 CREATE TRIGGER `addcommentstate` AFTER INSERT ON `comment` FOR EACH ROW begin
