@@ -1495,6 +1495,37 @@ class Process {
             return;
         }
 
+        // 父评论id不可以和回复的子评论id一样
+        if (parentId !== undefined && replyId !== undefined && parentId === replyId) {
+            res.send({
+                code: 300,
+                data: {},
+                message: '参数错误',
+                success: false
+            });
+            return;
+        }
+
+        if (parentId !== undefined && typeof parentId !== 'number') {
+            res.send({
+                code: 300,
+                data: {},
+                message: '参数错误',
+                success: false
+            });
+            return;
+        }
+
+        if (replyId !== undefined && typeof replyId !== 'number') {
+            res.send({
+                code: 300,
+                data: {},
+                message: '参数错误',
+                success: false
+            });
+            return;
+        }
+
         const message = await Process.article.blogAddComment({
             commentContent,
             parentId,
