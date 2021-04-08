@@ -1446,8 +1446,8 @@ class Article {
             message = {
                 code: 305,
                 data: {},
-                message: '留言列表获取失败',
-                success: false
+                message: '没有任何留言',
+                success: true
             };
         }
 
