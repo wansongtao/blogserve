@@ -1238,10 +1238,12 @@ class Article {
 
         } else {
             message = {
-                code: 305,
-                data: {},
-                message: '文章内容获取失败',
-                success: false
+                code: 205,
+                data: {
+                    commentList: []
+                },
+                message: '该文章没有任何评论',
+                success: true
             };
         }
 
