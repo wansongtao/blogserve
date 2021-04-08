@@ -1227,15 +1227,35 @@ class Article {
                 success: false
             };
         } else if (data.length > 0) {
+            // 筛选出所有的主评论
+            const commentList = data.filter((item) => item.parentId === null).map((item) => {
+                return {
+                    commentId: item.commentId,
+                    commentContent: item.commentContent,
+                    commentTime: item.commentTime
+                };
+            });
+
+            // 将子评论添加到对应的主评论下
+            data.forEach((item) => {
+                if (item.parentId !== null) {
+                    const index = commentList.findIndex((value) => value.commentId === item.parentId);
+
+                    let children = commentList[index].children || [];
+
+                    children.push(item);
+                    commentList[index].children = children;
+                }
+            });
+
             message = {
                 code: 200,
                 data: {
-                    commentList: data
+                    commentList
                 },
                 message: '获取成功',
                 success: true
             };
-
         } else {
             message = {
                 code: 205,
@@ -1295,10 +1315,11 @@ class Article {
 
     /**
      * @description 发表评论
-     * @param {string} data {commentContent, parentId, replyId}
+     * @param {string} data {articleId, commentContent, parentId, replyId}
      * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async blogAddComment({
+        articleId,
         commentContent,
         parentId,
         replyId
@@ -1306,25 +1327,12 @@ class Article {
         let message = null;
         let data = null;
 
-        if (parentId == undefined) {
-            const sqlStr = `insert into comment set ?`;
-
-            const curDate = new Date();
-            const myDate = curDate.toLocaleDateString();
-            const myTime = curDate.toTimeString().substr(0, 8);
-            const commentTime = myDate + ' ' + myTime;
-
-            data = await Article.database.insert(sqlStr, {
-                commentContent,
-                commentTime
-            });
-        } else {
-            data = await Article.database.insertComment({
-                commentContent,
-                parentId,
-                replyId
-            });
-        }
+        data = await Article.database.insertComment({
+            articleId,
+            commentContent,
+            parentId,
+            replyId
+        });
 
         if (data) {
             message = {

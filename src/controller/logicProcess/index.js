@@ -1474,16 +1474,27 @@ class Process {
 
     /**
      * @description 发表评论
-     * @param {*} req { commentContent, parentId, replyId } = req.body
+     * @param {*} req { articleId,commentContent, parentId, replyId } = req.body
      * @param {*} res 
      * @returns {object} {code: 200, data: {}, message: '成功', success: true}
      */
     static async blogAddComment(req, res) {
         let {
+            articleId,
             commentContent,
             parentId,
             replyId
         } = req.body;
+
+        if (typeof articleId !== 'number') {
+            res.send({
+                code: 300,
+                data: {},
+                message: '参数错误',
+                success: false
+            });
+            return;
+        }
 
         if (typeof commentContent !== 'string' || commentContent.trim().length === 0) {
             res.send({
@@ -1527,6 +1538,7 @@ class Process {
         }
 
         const message = await Process.article.blogAddComment({
+            articleId,
             commentContent,
             parentId,
             replyId

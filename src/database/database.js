@@ -411,10 +411,11 @@ class Database {
 
   /**
    * @description 插入评论
-   * @param {object} data {commentContent, parentId, replyId}
+   * @param {object} data {articleId, commentContent, parentId, replyId}
    * @returns 插入成功返回true，失败返回false
    */
   static async insertComment({
+    articleId,
     commentContent,
     parentId,
     replyId
@@ -425,6 +426,7 @@ class Database {
     const commentTime = myDate + ' ' + myTime;
 
     let executeConn = null;
+    let commentId = '';
 
     return Database._getConn_().then((conn) => {
         // 开始事务
@@ -441,9 +443,23 @@ class Database {
         });
       })
       .then((result) => {
+        // 向文章评论表插入数据
+        const sqlStr = 'insert into articlecomment ?';
+        commentId = result.insertId;
+
+        return Database._transactionExecuteSql_(executeConn, sqlStr, {
+          articleId,
+          commentId,
+        });
+      })
+      .then(() => {
+        if (parentId == undefined) {
+          return Promise.resolve();
+        }
+
         // 向子评论表插入数据
         const sqlStr = 'insert into childrencomment set ?';
-        const childId = result.insertId;
+        const childId = commentId;
 
         const data = {parentId, childId};
 
