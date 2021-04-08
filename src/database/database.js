@@ -444,7 +444,7 @@ class Database {
       })
       .then((result) => {
         // 向文章评论表插入数据
-        const sqlStr = 'insert into articlecomment ?';
+        const sqlStr = 'insert into articlecomment set ?';
         commentId = result.insertId;
 
         return Database._transactionExecuteSql_(executeConn, sqlStr, {
