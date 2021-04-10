@@ -109,7 +109,7 @@ class Router {
     this.myRouter.get('/blog/gethotarticle', process.blogHotArticles);
 
     // 最新文章接口
-    this.myRouter.get('/blog/getnewarticle', process.blogNewArticles);
+    this.myRouter.post('/blog/getnewarticle', process.blogNewArticles);
 
     // 文章内容接口
     this.myRouter.get('/blog/getarticlecontent', process.blogArticleContent);

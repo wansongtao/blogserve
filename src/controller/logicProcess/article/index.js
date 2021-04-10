@@ -1122,15 +1122,24 @@ class Article {
 
     /**
      * @description 最新文章列表
-     * @param {object} data {currentPage, pageSize}
+     * @param {object} data {currentPage, pageSize, categoryType}
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
-    static async blogNewArticles({currentPage, pageSize}) {
+    static async blogNewArticles({currentPage, pageSize, categoryType}) {
         // 查询用户可以看见的文章并按时间排序  mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
-        const queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where  
-        isdelete = ? and stateNum = ? ORDER BY addTime DESC  limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+        let queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where  
+        isdelete = ? and stateNum = ? `;
 
-        const data = await Article.database.query(queryStr, [0, 3]);
+        const sqlStr = 'and categoryType = ? ';
+        const splitSql = ` ORDER BY addTime DESC  limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+
+        if (categoryType) {
+            queryStr += (sqlStr + splitSql);
+        } else {
+            queryStr += splitSql;
+        }
+
+        const data = await Article.database.query(queryStr, [0, 3, categoryType]);
         let message = {};
 
         if (data === false) {

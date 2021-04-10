@@ -1384,15 +1384,16 @@ class Process {
 
     /**
      * @description 获取最新文章列表
-     * @param {*} req { currentPage, pageSize } = req.query
+     * @param {*} req { currentPage, pageSize, categoryType } = req.query
      * @param {*} res 
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
     static async blogNewArticles(req, res) {
         let {
             currentPage,
-            pageSize
-        } = req.query;
+            pageSize,
+            categoryType
+        } = req.body;
 
         if (isNaN(Number(currentPage))) {
             // 当前页码不为数字，则默认第一页
@@ -1412,7 +1413,8 @@ class Process {
 
         const message = await Process.article.blogNewArticles({
             currentPage,
-            pageSize
+            pageSize,
+            categoryType
         });
 
         res.send(message);
