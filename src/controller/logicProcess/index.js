@@ -1389,7 +1389,10 @@ class Process {
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
     static async blogNewArticles(req, res) {
-        let { currentPage, pageSize } = req.query;
+        let {
+            currentPage,
+            pageSize
+        } = req.query;
 
         if (isNaN(Number(currentPage))) {
             // 当前页码不为数字，则默认第一页
@@ -1407,7 +1410,10 @@ class Process {
             pageSize = Math.abs(pageSize).toFixed();
         }
 
-        const message = await Process.article.blogNewArticles({currentPage, pageSize});
+        const message = await Process.article.blogNewArticles({
+            currentPage,
+            pageSize
+        });
 
         res.send(message);
     }
@@ -1617,6 +1623,25 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 获取分类列表
+     * @param {*} req
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {categories: [{categoryType}]}, message: '成功', success: true}
+     */
+    static async blogGetCategory(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        message = await Process.article.queryCategory();
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1656,5 +1681,6 @@ module.exports = {
     blogSearchArticle: Process.blogSearchArticle,
     blogAddComment: Process.blogAddComment,
     blogAddMessage: Process.blogAddMessage,
-    blogGetMessage: Process.blogGetMessage
+    blogGetMessage: Process.blogGetMessage,
+    blogGetCategory: Process.blogGetCategory
 };

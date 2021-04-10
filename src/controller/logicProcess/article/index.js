@@ -1454,6 +1454,44 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 获取文章分类
+     * @returns {object} {code: 200, data: {categories: [{categoryType}]}, message: '成功', success: true}
+     */
+    static async queryCategory() {
+        const queryStr = 'SELECT categoryType from articlecategory WHERE ISDELETE = ?';
+
+        const data = await Article.database.query(queryStr, [0]);
+        let message = {};
+
+        if (data === false) {
+            message = {
+                code: 401,
+                data: {},
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            };
+        } else if (data.length > 0) {
+            message = {
+                code: 200,
+                data: {
+                    categories: data
+                },
+                message: '获取成功',
+                success: true
+            };
+        } else {
+            message = {
+                code: 305,
+                data: {},
+                message: '未查找到任何分类',
+                success: false
+            };
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -1481,5 +1519,6 @@ module.exports = {
     blogSearchArticle: Article.blogSearchArticle,
     blogAddComment: Article.blogAddComment,
     blogAddMessage: Article.blogAddMessage,
-    queryMessage: Article.queryMessage
+    queryMessage: Article.queryMessage,
+    queryCategory: Article.queryCategory
 };

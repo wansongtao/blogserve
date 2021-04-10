@@ -128,6 +128,9 @@ class Router {
 
     // 获取留言列表接口
     this.myRouter.get('/blog/getmessage', process.blogGetMessage);
+
+    // 获取文章分类
+    this.myRouter.get('/blog/getcategory', process.blogGetCategory);
   }
 
   /**
