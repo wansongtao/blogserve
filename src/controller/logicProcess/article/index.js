@@ -1122,12 +1122,13 @@ class Article {
 
     /**
      * @description 最新文章列表
+     * @param {object} data {currentPage, pageSize}
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
-    static async blogNewArticles() {
-        // 查询用户可以看见的文章并按时间排序
-        const queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist 
-        where isdelete = ? and stateNum = ? ORDER BY addTime DESC limit 10`;
+    static async blogNewArticles({currentPage, pageSize}) {
+        // 查询用户可以看见的文章并按时间排序  mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
+        const queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where  
+        isdelete = ? and stateNum = ? ORDER BY addTime DESC  limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
 
         const data = await Article.database.query(queryStr, [0, 3]);
         let message = {};
@@ -1153,8 +1154,8 @@ class Article {
             message = {
                 code: 305,
                 data: {},
-                message: '文章列表获取失败',
-                success: false
+                message: '没有更多文章了',
+                success: true
             };
         }
 

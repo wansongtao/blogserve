@@ -1384,12 +1384,30 @@ class Process {
 
     /**
      * @description 获取最新文章列表
-     * @param {*} req 
+     * @param {*} req { currentPage, pageSize } = req.query
      * @param {*} res 
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
     static async blogNewArticles(req, res) {
-        const message = await Process.article.blogNewArticles();
+        let { currentPage, pageSize } = req.query;
+
+        if (isNaN(Number(currentPage))) {
+            // 当前页码不为数字，则默认第一页
+            currentPage = 1;
+        } else {
+            // 转为正整数
+            currentPage = Math.abs(currentPage).toFixed();
+        }
+
+        if (isNaN(Number(pageSize))) {
+            // 每页大小不为数字，则默认每页十二条
+            pageSize = 12;
+        } else {
+            // 转为正整数
+            pageSize = Math.abs(pageSize).toFixed();
+        }
+
+        const message = await Process.article.blogNewArticles({currentPage, pageSize});
 
         res.send(message);
     }
