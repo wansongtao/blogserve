@@ -1140,12 +1140,12 @@ class Article {
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
     static async blogNewArticles({currentPage, pageSize, categoryType}) {
-        // 查询用户可以看见的文章并按时间排序  mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
+        // 查询用户可以看见的文章并按id排序  mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
         let queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where  
         isdelete = ? and stateNum = ? `;
 
         const sqlStr = 'and categoryType = ? ';
-        const splitSql = ` ORDER BY addTime DESC  limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+        const splitSql = ` ORDER BY articleId DESC  limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
 
         if (categoryType) {
             queryStr += (sqlStr + splitSql);
