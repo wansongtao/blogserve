@@ -81,14 +81,28 @@ class Article {
         };
 
         let curDate = new Date();
-        let myDate = curDate.toLocaleDateString();
+        let myDate = curDate.toLocaleDateString().split('/');
         let myTime = curDate.toTimeString().substr(0, 8);
+
+        let adddate = myDate[0] + '-';
+        let month = myDate[1];
+        let day = myDate[2];
+        
+        if (month.length === 1) {
+            month = '0' + month;
+        }
+
+        if (day.length === 1) {
+            day = '0' + day;
+        }
+
+        adddate = adddate + month + '-' + day;
 
         const result = Article.database.insertArticle({
             articleTitle,
             articleContent,
             ADDACC: userAccount,
-            ADDTIME: myDate + ' ' + myTime,
+            ADDTIME: adddate + ' ' + myTime,
             categoryId
         });
 
