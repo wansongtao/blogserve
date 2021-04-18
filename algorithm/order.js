@@ -58,7 +58,6 @@ function bubbleSort(arr = [100, 50, 3, 23, 0, 10]) {
         }
     }
 
-    console.log(arr);
     return arr;
 }
 
@@ -89,34 +88,36 @@ function selectionSort (arr = [55, 0, 3, 98, 12, 4]) {
         [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
     }
 
-    console.log(arr);
     return arr;
 }
 
 /**
  * @description 基数排序
- * @param {*} arr 
- * @returns {Array}
+ * @param {array} arr 待排序数组
+ * @returns {Array} 返回排序好的数组
  */
-function baseOrder (arr) {
+function radixSort (arr = [10, 0, 41, 30, 31, 21]) {
     let tempArr = [];
     
-    //先按个位数大小排序，tempArr[0] = [10, 0, 100, 20, 30] tempArr[1] = [41, 21, 31]
+    //先按个位数大小排序，例如：tempArr[0] = [10, 0, 30] tempArr[1] = [41, 21, 31]
     arr.forEach(item => {
-        if (tempArr[item % 10] == undefined) {
+        // 判断该数组是否已创建
+        if (tempArr[item % 10] === undefined) {
             tempArr[item % 10] = [];
         }
 
         tempArr[item % 10].push(item);
     });
+    // tempArr = [[10, 0, 30], [41, 31, 21]]
 
     //再按除以十的大小排序
     let newArr = [];
     tempArr.forEach(item => {
-        if (item != undefined) {
+        if (item !== undefined) {
             item.forEach(val => {
+                // 例如：newArr[1] = [10] newArr[2] = [21]
                 let temp = Math.floor(val / 10);
-                if (newArr[temp] == undefined) {
+                if (newArr[temp] === undefined) {
                     newArr[temp] = [];
                 }
     
@@ -124,59 +125,77 @@ function baseOrder (arr) {
             });
         }
     });
+    // newArr = [[0], [10], [21], [30, 31], [41]]
 
+    // 将排好序的二维数组合并为一维数组
     tempArr = [];
     newArr.forEach(item => {
         tempArr.push(...item);
     });
+    
     return tempArr;
 }
 
 /**
  * @description 插入排序
- * @param {*} arr 
- * @returns {Array}
+ * @param {array} arr 待排序数组
+ * @returns {Array} 返回排序好的数组
  */
-function insertOrder (arr) {
-    for (let i = 1; i < arr.length; i++) {
+function insertionSort (arr = [10, 3, 12, 1, 23, 88, 39]) {
+    for (let i = 0; i < arr.length; i++) {
+        // 保存当前值
         let currentVal = arr[i];
+
+        // 保存当前值的前一个数组元素的索引
         let preIndex = i - 1;
 
+        // 将当前值currentVal与它前面的每一个值作比较
         while(preIndex >= 0 && arr[preIndex] > currentVal) {
+            // 如果前一个值大于当前值则交换其位置，preIndex减一
             arr[preIndex + 1] = arr[preIndex];
             preIndex--;
         }
 
+        // 因为当前值经过while循环后i可能并不是当前值的索引，所以使用preIndex+1最为适合
         arr[preIndex + 1] = currentVal;
     }
-    console.log(arr);
+    
     return arr;
 }
 
 /**
  * @description 希尔排序
- * @param {*} arr 
- * @returns {Array}
+ * @param {array} arr 待排序数组
+ * @returns {Array} 排序好的数组
  */
-function shellOrder (arr) {
+function shellSort (arr) {
+    // 设置动态间隔
     let h = 1;
     while(h < arr.length / 3) {
         h = h * 3 + 1;
     }
 
+    // 当h=1时等于插入排序
     while(h >= 1) {
         for (let i = h; i < arr.length; i++) {
+            // 保存当前值
             let currentVal = arr[i];
+
+            // 保存当前值的前h个值的索引
             let preIndex = i - h;
 
+            // 将当前值currentVal与它前面的每h个值作比较
             while(preIndex >= 0 && arr[preIndex] > currentVal) {
+                // 如果前一个值大于当前值则交换其位置，preIndex减h
                 arr[preIndex + h] = arr[preIndex];
                 preIndex -= h;
             }
 
+            // 因为当前值经过while循环后i可能并不是当前值的索引，所以使用preIndex+h最为适合
             arr[preIndex + h] = currentVal;
         }
 
+        // 间隔逐渐变小
         h = (h - 1) / 3;
     }
 
@@ -185,10 +204,11 @@ function shellOrder (arr) {
 
 /**
  * @description 快速排序
- * @param {*} arr 
- * @returns {Array}
+ * @param {array} arr 待排序数组
+ * @returns {Array} 返回排序好的数组
  */
-function quickOrder (arr) {
+function quickSort (arr) {
+    // 当数组长度小于等于一时，直接返回
     if (arr.length <= 1) {
         return arr;
     }
@@ -199,29 +219,34 @@ function quickOrder (arr) {
 
     arr.forEach(item => {
         if (item > pivot[0]) {
+            // 将大于基准值的元素放入largeArr数组
             largeArr.push(item);
         }
         else if (item < pivot[0]){
+            // 将小于基准值的元素放入lessArr数组
             lessArr.push(item);
         }
         else {
+            // 相等的直接放入pivot数组
             pivot.push(item);
         }
     });
 
-    return arguments.callee(lessArr).concat(pivot, arguments.callee(largeArr));
+    // 对lessArr和largeArr数组重复以上过程，最后将排序好的数组连接起来
+    return quickSort(lessArr).concat(pivot, quickSort(largeArr));
 }
 
 /**
  * @description 归并排序
- * @param {*} arr 
- * @returns {Array}
+ * @param {array} arr 待排序数组
+ * @returns {Array} 返回排序好的数组
  */
-function mergeOrder (arr) {
+function mergeSort (arr) {
     if (arr.length <= 1) {
         return arr;
     }
 
+    // 将数组分为两部分
     let middle = Math.floor(arr.length / 2),
     leftArr = arr.slice(0, middle),
     rightArr = arr.slice(middle);
@@ -229,8 +254,10 @@ function mergeOrder (arr) {
     function merge (leftArr, rightArr) {
         let result = [];
     
+        // 当两个数组的长度都大于0时，比较相同索引的数组元素大小，将小的放入result数组
         while(leftArr.length && rightArr.length) {
             if (leftArr[0] > rightArr[0]) {
+                // shift()方法 => 移除数组开头的元素并返回
                 result.push(rightArr.shift());
             }
             else {
@@ -238,6 +265,7 @@ function mergeOrder (arr) {
             }
         }
     
+        // 当只有一个数组的长度大于0时，直接将result和其合并
         if (leftArr.length) {
             result.push(...leftArr);
         }
@@ -248,7 +276,8 @@ function mergeOrder (arr) {
         return result;
     }
 
-    return merge(mergeOrder(leftArr), mergeOrder(rightArr));
+    // mergeSort(leftArr) => 递归将其分割为不可分割的数组序列
+    return merge(mergeSort(leftArr), mergeSort(rightArr));
 }
 
 // setTimeout(() => {
@@ -259,6 +288,6 @@ function mergeOrder (arr) {
 // test(baseOrder);
 // test(insertOrder);
 // test(shellOrder);
-// testAlgorithm(quickOrder);
-test(selectionSort, 1, 20);
+testAlgorithm(mergeSort);
+// test(shellSort, 1, 20);
 // test(mergeOrder);
