@@ -38,41 +38,58 @@ function testAlgorithm(fn) {
 
 /**
  * @description 冒泡排序
- * @param {*} arr 
- * @returns {Array}
+ * @param {array} arr 待排序数组
+ * @returns {Array} 返回排序后的数组
  */
-function bubbleOrder(arr) {
-    // let temp = 0;
-
+function bubbleSort(arr = [100, 50, 3, 23, 0, 10]) {
+    // 重复以下步骤。注意：找出十个数里最大的一个数最多只需要进行9次比较 => arr.length - 1。
     for (let loop = 0; loop < arr.length - 1; loop++) {
+        /**
+         * [100, 50, 3, 23, 0, 10] => [50, 3, 23, 0, 10, 100] (下一次比较‘100’已经不用参与了)
+         * 对每一对相邻的元素作比较。比较完数组中所有元素后，可以找到一个最大的元素。
+         * 因为每比较完一次数组，都可以找出一个最大值，所以比较次数逐次递减。
+         */
         for (let i = 0; i < arr.length - 1 - loop; i++) {
+            // 比较相邻的两个元素，如果第一个元素比第二个大，就交换它们的位置。
             if (arr[i] > arr[i + 1]) {
+                // es6新语法，对象解构，交换位置
                 [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
             }
         }
     }
 
+    console.log(arr);
     return arr;
 }
 
 /**
  * @description 选择排序
- * @param {*} arr 
- * @returns {Array}
+ * @param {array} arr 待排序数组
+ * @returns {Array} 返回排序好的数组
  */
-function selectOrder (arr) {
+function selectionSort (arr = [55, 0, 3, 98, 12, 4]) {
     for (let i = 0; i < arr.length - 1; i++) {
+        // 假设当前i为最小值的索引
         let minIndex = i;
 
+        /**
+         * 寻找数组中是否还有比arr[i]小的值
+         * 因为外部for循环每循环一次都可以找到一个最小的值。
+         * 所以内部for循环循环次数逐次递减 => j = i + 1
+         */
         for (let j = i + 1; j < arr.length; j++) {
+            // 有比arr[i]还小的值则保存其索引
             if (arr[j] < arr[minIndex]) {
                 minIndex = j;
             }
         }
 
+        // 使用es6新语法对象解构，交换值。
+        // 相当于： let temp = arr[i] arr[i] = arr[minIndex] arr[minIndex] = temp
         [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
     }
 
+    console.log(arr);
     return arr;
 }
 
@@ -121,7 +138,7 @@ function baseOrder (arr) {
  * @returns {Array}
  */
 function insertOrder (arr) {
-    for (let i = 0; i < arr.length; i++) {
+    for (let i = 1; i < arr.length; i++) {
         let currentVal = arr[i];
         let preIndex = i - 1;
 
@@ -132,7 +149,7 @@ function insertOrder (arr) {
 
         arr[preIndex + 1] = currentVal;
     }
-
+    console.log(arr);
     return arr;
 }
 
@@ -243,5 +260,5 @@ function mergeOrder (arr) {
 // test(insertOrder);
 // test(shellOrder);
 // testAlgorithm(quickOrder);
-test(quickOrder, 10, 1000000);
+test(selectionSort, 1, 20);
 // test(mergeOrder);
