@@ -428,7 +428,7 @@ class Article {
         }
 
         // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
-        let pageSizeQuery = ` ORDER BY articleId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
+        let pageSizeQuery = ` ORDER BY stateNum asc, articleId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
         let queryStr = 'SELECT articleId, articleTitle, author, categoryType, stateDes, ADDTIME, isdelete from articlelist ';
         queryStr += pageSizeQuery;
 
