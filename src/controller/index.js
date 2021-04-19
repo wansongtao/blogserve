@@ -5,10 +5,10 @@
  */
 class Process {
     static users = require('./users');
-    static token = require('../../token');
+    static token = require('../token');
     static uploadFile = require('./uploadFile');
     static article = require('./article');
-    static untils = require('../../untils/untils');
+    static untils = require('../untils/untils');
 
     /**
      * @description 获取用户账号，根据token

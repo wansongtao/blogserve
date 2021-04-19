@@ -4,8 +4,8 @@
  * @date 2020-12-08
  */
 class Users {
-    static database = require('../../../database/database');
-    static token = require('../../../token');
+    static database = require('../../database/database');
+    static token = require('../../token');
 
     /**
      * @description 查询该账号是否存在

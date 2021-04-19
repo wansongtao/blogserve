@@ -8,7 +8,7 @@ class Router {
     //   引入模块
     const express = require('express');
     const path = require('path');
-    const process = require('../controller/logicProcess');
+    const process = require('../controller');
 
     // 创建路由实例
     this.myRouter = express.Router();
