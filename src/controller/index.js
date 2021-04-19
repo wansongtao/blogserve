@@ -1644,6 +1644,52 @@ class Process {
 
         res.send(message);
     }
+
+    /**
+     * @description 修改文章
+     * @param {*} req {articleId, articleTitle, articleContent, categoryId} = req.body
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {}, message: '成功', success: true}
+     */
+    static async updateArticle(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            articleId,
+            articleTitle,
+            articleContent,
+            categoryId
+        } = req.body;
+
+        if (typeof articleId !== 'number' || (articleTitle == undefined && articleContent == undefined && categoryId == undefined)) {
+            message.code = 300;
+            message.message = '参数错误';
+            res.send(message);
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.updateArticle({
+                articleId,
+                userAccount: backVal.userAccount,
+                articleTitle,
+                articleContent,
+                categoryId
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
 }
 
 module.exports = {
@@ -1675,6 +1721,7 @@ module.exports = {
     getMessageList: Process.getMessageList,
     delMessage: Process.delMessage,
     checkMessage: Process.checkMessage,
+    updateArticle: Process.updateArticle,
     blogUserInfo: Process.blogUserInfo,
     blogHotArticles: Process.blogHotArticles,
     blogNewArticles: Process.blogNewArticles,

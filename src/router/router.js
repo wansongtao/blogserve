@@ -100,6 +100,9 @@ class Router {
     // 留言审核
     this.myRouter.post('/admin/checkmessage', process.checkMessage);
 
+    // 修改文章
+    this.myRouter.post('/admin/updatearticle', process.updateArticle);
+
 
     // 前台接口
     // 获取用户信息

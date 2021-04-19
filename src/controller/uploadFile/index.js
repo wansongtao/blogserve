@@ -20,7 +20,7 @@ class UploadFile {
             form.encoding = 'utf-8';
 
             // 设置上传文件存放的文件夹路径
-            form.uploadDir = UploadFile.path.join(__dirname, '../../../upload');
+            form.uploadDir = UploadFile.path.join(__dirname, '../../upload');
 
             // 保留上传文件的后缀名
             form.keepExtensions = true;

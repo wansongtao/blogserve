@@ -87,7 +87,7 @@ class Article {
         let adddate = myDate[0] + '-';
         let month = myDate[1];
         let day = myDate[2];
-        
+
         if (month.length === 1) {
             month = '0' + month;
         }
@@ -1139,7 +1139,11 @@ class Article {
      * @param {object} data {currentPage, pageSize, categoryType}
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, addTime, hot}, message: '成功', success: true}
      */
-    static async blogNewArticles({currentPage, pageSize, categoryType}) {
+    static async blogNewArticles({
+        currentPage,
+        pageSize,
+        categoryType
+    }) {
         // 查询用户可以看见的文章并按id排序  mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
         let queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where  
         isdelete = ? and stateNum = ? `;
@@ -1515,6 +1519,118 @@ class Article {
 
         return message;
     }
+
+    /**
+     * @description 修改文章
+     * @param {object} data {articleId, articleTitle, articleContent, categoryId, userAccount}
+     * @returns {object} {code: 200, data: {}, message: '', success: true}
+     */
+    static async updateArticle(data) {
+        const message = {
+            code: 200,
+            data: {},
+            message: '修改成功',
+            success: true
+        };
+
+        let {
+            articleId,
+            articleTitle,
+            articleContent,
+            categoryId,
+            userAccount
+        } = data;
+        let errorInfo = '';
+
+        // 只有超级管理员可以修改任意文章，其他用户只能修改自己写的文章
+        const rolesId = await Article.getRoles(userAccount);
+
+        if (rolesId !== 10001) {
+            const sqlStr = 'select ADDACC from articlelist where articleId = ? and isdelete = ?'
+
+            const list = await Article.database.query(sqlStr, [articleId, 0]);
+
+            if (list !== false && list.length > 0) {
+                if (userAccount != list[0].ADDACC) {
+                    return {
+                        code: 503,
+                        data: {},
+                        message: '权限不足',
+                        success: false
+                    };
+                }
+            }
+        }
+
+        // 修改后的文章需要重新审核
+        const stateStr = 'update articlestate set stateNum = ? where articleId = ?';
+        const value = await Article.database.update(stateStr, [1, articleId]);
+
+        if (!value) {
+            return {
+                code: 401,
+                data: {},
+                message: '修改失败',
+                success: false
+            };
+        }
+
+        // 修改文章分类
+        if (categoryId != undefined) {
+            const sqlStr = 'update articletype set categoryId = ? where articleId = ?';
+
+            const data = await Article.database.update(sqlStr, [categoryId, articleId]);
+
+            if (!data) {
+                errorInfo = '文章分类修改失败';
+
+                message.code = 401;
+                message.success = false;
+                message.message = errorInfo;
+            }
+        }
+
+        // 修改文章内容、标题
+        if (articleContent || articleTitle) {
+            let curDate = new Date();
+            let myDate = curDate.toLocaleDateString();
+            let myTime = curDate.toTimeString().substr(0, 8);
+            let updateTime = myDate + ' ' + myTime;
+            let data = [];
+
+            let commonStr = 'update articleinfo set ';
+
+            if (articleTitle != undefined) {
+                commonStr += 'articleTitle = ?, ';
+                data.push(articleTitle);
+            }
+
+            if (articleContent != undefined) {
+                commonStr += 'articleContent = ?, ';
+                data.push(articleContent);
+            }
+
+            commonStr += 'UPDATEACC = ?, UPDATETIME = ? WHERE articleId = ?';
+            data.push(userAccount);
+            data.push(updateTime);
+            data.push(articleId);
+
+            const success = await Article.database.update(commonStr, data);
+
+            if (!success) {
+                if (errorInfo == '') {
+                    message.code = 401;
+                    message.success = false;
+                    message.message = '文章标题或文章内容修改失败';
+                }
+                else {
+                    message.message = '修改失败';
+                }
+            }
+        }
+
+        return message;
+    }
 }
 
 module.exports = {
@@ -1543,5 +1659,6 @@ module.exports = {
     blogAddComment: Article.blogAddComment,
     blogAddMessage: Article.blogAddMessage,
     queryMessage: Article.queryMessage,
-    queryCategory: Article.queryCategory
+    queryCategory: Article.queryCategory,
+    updateArticle: Article.updateArticle
 };
