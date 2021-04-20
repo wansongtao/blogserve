@@ -393,9 +393,9 @@ class Process {
 
     /**
      * @description 搜索文章, 标题、作者、时间
-     * @param {*} req { keyword } = req.query
+     * @param {*} req {keyword, currentPage, pageSize} = req.query
      * @param {*} res 
-     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle}]}, message: '成功', success: true}
+     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle, author, categoryType, ADDTIME}], count}, message: '成功', success: true}
      */
     static async getArticleListSearch(req, res) {
         let message = {
@@ -838,7 +838,7 @@ class Process {
 
     /**
      * @description 获取所有文章
-     * @param {*} req {currentPage, pageSize}
+     * @param {*} req {keyword, currentPage, pageSize}
      * @param {*} res 
      * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle, author, categoryType, stateDes, ADDTIME, isdelete}], count}, message: '成功', success: true}
      */
@@ -853,14 +853,16 @@ class Process {
         const backVal = Process._getUserAccount_(req);
         let {
             currentPage,
-            pageSize
+            pageSize,
+            keyword
         } = req.query;
 
         if (backVal.userAccount) {
             message = await Process.article.queryAllArticle({
                 userAccount: backVal.userAccount,
                 currentPage,
-                pageSize
+                pageSize,
+                keyword
             });
         } else {
             message.code = backVal.code;

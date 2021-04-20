@@ -487,13 +487,14 @@ class Article {
 
     /**
      * @description 查询所有文章
-     * @param {object} search {currentPage, pageSize}
+     * @param {object} search {keyword, userAccount, currentPage, pageSize}
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, categoryType, stateDes, ADDTIME, isdelete}, message: '成功', success: true}
      */
     static async queryAllArticle(search) {
         let {
             currentPage,
             pageSize,
+            keyword,
             userAccount
         } = search;
 
@@ -509,11 +510,23 @@ class Article {
         }
 
         // 查询文章数量
-        let queryNumber = 'select count(articleId) as articleCount from articlelist';
-        let count = await Article.database.query(queryNumber, [0]);
+        let queryNumber = `select count(articleId) as articleCount from articlelist `;
+
+        if (typeof keyword === 'string' && keyword.trim().length > 0) {
+            queryNumber += ` where articleTitle REGEXP '${keyword}' OR author REGEXP '${keyword}' OR addtime REGEXP '${keyword}'`;
+        }
+
+        let count = await Article.database.query(queryNumber, []);
 
         if (count !== false && count.length > 0) {
             count = count[0].articleCount;
+        } else {
+            return {
+                code: 305,
+                data: {},
+                message: '未搜索到任何相关文章',
+                success: true
+            };
         }
 
         // 查询对应页码的文章
@@ -541,10 +554,15 @@ class Article {
 
         // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
         let pageSizeQuery = ` ORDER BY stateNum asc, articleId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
-        let queryStr = 'SELECT articleId, articleTitle, author, categoryType, stateDes, ADDTIME, isdelete from articlelist ';
+        let queryStr = `SELECT articleId, articleTitle, author, categoryType, stateDes, ADDTIME, isdelete from articlelist`;
+        
+
+        if (typeof keyword === 'string' && keyword.trim().length > 0) {
+            queryStr += ` where articleTitle REGEXP '${keyword}' OR author REGEXP '${keyword}' OR addtime REGEXP '${keyword}'`;
+        }
         queryStr += pageSizeQuery;
 
-        const data = await Article.database.query(queryStr, [0]);
+        const data = await Article.database.query(queryStr, []);
         let message = {};
 
         if (data === false) {
@@ -569,8 +587,8 @@ class Article {
             message = {
                 code: 305,
                 data: {},
-                message: '文章列表获取失败',
-                success: false
+                message: '未搜索到任何相关文章',
+                success: true
             };
         }
 
