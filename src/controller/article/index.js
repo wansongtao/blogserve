@@ -127,11 +127,12 @@ class Article {
 
     /**
      * @description 查询用户可以看到的文章
-     * @param {object} search {currentPage, pageSize}
+     * @param {object} search {keyword, userAccount, currentPage, pageSize}
      * @returns {object} {code: 200, data: {articleId, articleTitle, author, categoryType, ADDTIME}, message: '登录成功', success: true}
      */
     static async queryArticleList(search) {
         let {
+            keyword,
             currentPage,
             pageSize,
             userAccount
@@ -159,111 +160,9 @@ class Article {
             queryArr = [0];
         }
 
-
-        // 查询文章数量
-        let queryNumber = 'select count(articleId) as articleCount from articlelist where '
-        let count = await Article.database.query(queryNumber + roleQuery, queryArr);
-
-        if (count !== false && count.length > 0) {
-            count = count[0].articleCount;
+        if (typeof keyword === 'string' && keyword.trim().length > 0) {
+            roleQuery += ` and articleTitle REGEXP '${keyword}' OR author REGEXP '${keyword}' OR addtime REGEXP '${keyword}' `;
         }
-
-        // 查询对应页码的文章
-        if (isNaN(Number(currentPage))) {
-            // 当前页码不为数字，则默认第一页
-            currentPage = 1;
-        } else {
-            // 转为正整数
-            currentPage = Math.abs(currentPage).toFixed();
-        }
-
-        if (isNaN(Number(pageSize))) {
-            // 每页大小不为数字，则默认每页十条
-            pageSize = 10;
-        } else {
-            // 转为正整数
-            pageSize = Math.abs(pageSize).toFixed();
-        }
-
-        if ((currentPage - 1) * pageSize > count) {
-            // 在当前页码超出范围时，设为默认值
-            currentPage = 1;
-            pageSize = 10;
-        }
-
-        // mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
-        let pageSizeQuery = ` ORDER BY articleId DESC limit ${pageSize} offset ${(currentPage - 1) * pageSize}`;
-        let queryStr = 'SELECT articleId, articleTitle, author, categoryType, ADDTIME from articlelist where ';
-        queryStr += (roleQuery + pageSizeQuery);
-
-        const data = await Article.database.query(queryStr, [0, userAccount, 0]);
-        let message = {};
-
-        if (data === false) {
-            message = {
-                code: 401,
-                data: {},
-                message: '服务器错误',
-                success: false
-            };
-        } else if (data.length > 0) {
-            message = {
-                code: 200,
-                data: {
-                    articles: data,
-                    count
-                },
-                message: '获取成功',
-                success: true
-            };
-
-        } else {
-            message = {
-                code: 305,
-                data: {},
-                message: '文章列表获取失败',
-                success: false
-            };
-        }
-
-        return message;
-    }
-
-    /**
-     * @description 按关键字搜索文章
-     * @param {object} search {userAccount, keyword, currentPage, pageSize}
-     * @returns {object} {code: 200, data: {articleId, articleTitle, author, categoryType, ADDTIME}, message: '登录成功', success: true}
-     */
-    static async searchArticleList(search) {
-        let {
-            currentPage,
-            pageSize,
-            userAccount,
-            keyword
-        } = search;
-
-        const rolesId = await Article.getRoles(userAccount);
-
-        let roleQuery = '',
-            queryArr = [];
-
-        if (rolesId === 0) {
-            return {
-                code: 403,
-                data: {},
-                message: '服务器繁忙，请稍后再试',
-                success: false
-            };
-        } else if (rolesId === 10003) {
-            // 普通用户只能查看自己未删除的文章，或后台用户、所有人可见的文章
-            roleQuery = ` isdelete = ? and ADDACC = ? OR stateNum IN (2, 3) and isdelete = ? and articleTitle REGEXP '${keyword}' OR author REGEXP '${keyword}' OR addtime REGEXP '${keyword}' `;
-            queryArr = [0, userAccount, 0];
-        } else if (rolesId === 10001 || rolesId === 10002) {
-            // 管理员可以查看未删除的文章
-            roleQuery = ` isdelete = ? and articleTitle REGEXP '${keyword}' OR author REGEXP '${keyword}' OR addtime REGEXP '${keyword}' `;
-            queryArr = [0];
-        }
-
 
         // 查询文章数量
         let queryNumber = 'select count(articleId) as articleCount from articlelist where '
@@ -1789,6 +1688,5 @@ module.exports = {
     blogAddMessage: Article.blogAddMessage,
     queryMessage: Article.queryMessage,
     queryCategory: Article.queryCategory,
-    updateArticle: Article.updateArticle,
-    searchArticleList: Article.searchArticleList
+    updateArticle: Article.updateArticle
 };
