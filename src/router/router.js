@@ -40,6 +40,9 @@ class Router {
     // 获取文章列表
     this.myRouter.get('/admin/getArticleList', process.getArticleList);
 
+    // 搜索文章接口
+    this.myRouter.get('/admin/searcharticle', process.getArticleListSearch);
+
     // 获取文章内容
     this.myRouter.get('/admin/getArticleContent', process.queryArticleContent);
 

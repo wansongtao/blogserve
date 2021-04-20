@@ -392,6 +392,53 @@ class Process {
     }
 
     /**
+     * @description 搜索文章, 标题、作者、时间
+     * @param {*} req { keyword } = req.query
+     * @param {*} res 
+     * @returns {object} {code: 200, data: {articles: [{articleId, articleTitle}]}, message: '成功', success: true}
+     */
+    static async getArticleListSearch(req, res) {
+        let message = {
+            code: 400,
+            data: {},
+            message: '服务器繁忙，请稍后再试',
+            success: false
+        };
+
+        let {
+            keyword,
+            currentPage,
+            pageSize
+        } = req.query;
+
+        if (keyword == null || keyword == '') {
+            res.send({
+                code: 300,
+                data: {},
+                message: '关键词错误',
+                success: false
+            });
+            return;
+        }
+
+        const backVal = Process._getUserAccount_(req);
+
+        if (backVal.userAccount) {
+            message = await Process.article.searchArticleList({
+                userAccount: backVal.userAccount,
+                keyword,
+                currentPage,
+                pageSize
+            });
+        } else {
+            message.code = backVal.code;
+            message.message = backVal.message;
+        }
+
+        res.send(message);
+    }
+
+    /**
      * @description 获取文章内容
      * @param {*} req {id: 文章id}
      * @param {*} res 
@@ -1731,5 +1778,6 @@ module.exports = {
     blogAddComment: Process.blogAddComment,
     blogAddMessage: Process.blogAddMessage,
     blogGetMessage: Process.blogGetMessage,
-    blogGetCategory: Process.blogGetCategory
+    blogGetCategory: Process.blogGetCategory,
+    getArticleListSearch: Process.getArticleListSearch
 };
