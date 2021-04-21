@@ -83,10 +83,9 @@ class Process {
 
         // 验证账号密码的格式
         const isFormat = Process.untils.verifyFormat([{
-                value: userAccount,
-                regExp: /^[a-zA-Z][\w]{1,5}$/
-            }
-        ]);
+            value: userAccount,
+            regExp: /^[a-zA-Z][\w]{1,5}$/
+        }]);
 
         // 格式错误，直接返回信息
         if (!isFormat && (typeof userPassword !== 'string' || userPassword.length === 0)) {
@@ -738,30 +737,16 @@ class Process {
      */
     static async updatePwd(req, res) {
         let {
-            oldPassword,
-            newPassword
+            pwd
         } = req.body;
 
-        // 验证密码格式
-        const isFormat = Process.untils.verifyFormat([{
-                value: oldPassword,
-                regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
-            },
-            {
-                value: newPassword,
-                regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
-            }
-        ]);
-
-        // 格式错误，直接返回信息
-        if (!isFormat) {
-            res.send({
-                code: 302,
+        if (typeof pwd !== 'string' || pwd.length === 0) {
+            return {
+                code: 300,
                 data: {},
-                message: '密码格式错误',
+                message: '参数错误',
                 success: false
-            });
-            return;
+            };
         }
 
         const backVal = Process._getUserAccount_(req);
@@ -775,8 +760,7 @@ class Process {
 
         if (backVal.userAccount) {
             message = await Process.users.updatePwd({
-                oldPassword,
-                newPassword,
+                pwd,
                 userAccount: backVal.userAccount
             });
         } else {

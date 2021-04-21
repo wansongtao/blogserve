@@ -7,6 +7,7 @@ class Users {
     static database = require('../../database/database');
     static token = require('../../token');
     static cryptoJs = require('crypto-js');
+    static untils = require('../../untils/untils');
 
     /**
      * @description 查询该账号是否存在
@@ -627,23 +628,106 @@ class Users {
 
     /**
      * @description 修改密码
-     * @param {object} data {oldPassword, newPassword, userAccount}
+     * @param {object} data { pwd, userAccount}
      * @returns {Promise} {code: 200, data: {}, message: '成功', success: true}
      */
     static async updatePwd(data) {
-        const {
-            oldPassword,
-            newPassword,
-            userAccount
-        } = data;
+        try {
+            let {
+                pwd,
+                userAccount
+            } = data;
 
-        // 判断原密码是否正确
-        const isHas = await Users._queryUser_({
-            userAccount,
-            userPassword: oldPassword
-        });
+            // 查询该账号的密码
+            const pwdStr = 'SELECT userPassword from users where ISDELETE = ? and userAccount = ?';
+            let password = await Users.database.query(pwdStr, [0, userAccount]);
 
-        if (!isHas) {
+            if (password !== false && password.length > 0) {
+                password = password[0].userPassword;
+            } else {
+                return {
+                    code: 500,
+                    data: {},
+                    message: '服务器繁忙，请稍后再试',
+                    success: false
+                };
+            }
+
+            const key = Users.cryptoJs.MD5(password).toString();
+
+            pwd = Users.cryptoJs.AES.decrypt(pwd, key);
+
+            let {
+                oldPassword,
+                newPassword
+            } = JSON.parse(pwd.toString(Users.cryptoJs.enc.Utf8));
+
+            // 验证密码格式
+            const isFormat = Users.untils.verifyFormat([{
+                    value: oldPassword,
+                    regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
+                },
+                {
+                    value: newPassword,
+                    regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
+                }
+            ]);
+
+            // 格式错误，直接返回信息
+            if (!isFormat) {
+                res.send({
+                    code: 302,
+                    data: {},
+                    message: '密码格式错误',
+                    success: false
+                });
+                return;
+            }
+
+            // 判断原密码是否正确
+            const isHas = await Users._queryUser_({
+                userAccount,
+                userPassword: oldPassword
+            });
+
+            if (!isHas) {
+                return {
+                    code: 300,
+                    data: {},
+                    message: '原密码错误',
+                    success: false
+                };
+            }
+
+            const curDate = new Date();
+            const myDate = curDate.toLocaleDateString();
+            const myTime = curDate.toTimeString().substr(0, 8);
+            const updateTime = myDate + ' ' + myTime;
+
+            const sqlStr = 'update users set userPassword = ?, UPDATEACC = ?, UPDATETIME = ?  where userAccount = ?';
+            const result = await Users.database.update(sqlStr, [newPassword, userAccount, updateTime, userAccount]);
+
+            let message = null;
+            if (result) {
+                message = {
+                    code: 200,
+                    data: {},
+                    message: '修改成功',
+                    success: true
+                };
+            } else {
+                message = {
+                    code: 401,
+                    data: {},
+                    message: '修改失败',
+                    success: false
+                };
+            }
+
+            return message;
+        } catch (ex) {
+            console.error(ex);
+
             return {
                 code: 300,
                 data: {},
@@ -651,33 +735,6 @@ class Users {
                 success: false
             };
         }
-
-        const curDate = new Date();
-        const myDate = curDate.toLocaleDateString();
-        const myTime = curDate.toTimeString().substr(0, 8);
-        const updateTime = myDate + ' ' + myTime;
-
-        const sqlStr = 'update users set userPassword = ?, UPDATEACC = ?, UPDATETIME = ?  where userAccount = ?';
-        const result = await Users.database.update(sqlStr, [newPassword, userAccount, updateTime, userAccount]);
-
-        let message = null;
-        if (result) {
-            message = {
-                code: 200,
-                data: {},
-                message: '修改成功',
-                success: true
-            };
-        } else {
-            message = {
-                code: 401,
-                data: {},
-                message: '修改失败',
-                success: false
-            };
-        }
-
-        return message;
     }
 
     /**
