@@ -6,6 +6,7 @@
 class Users {
     static database = require('../../database/database');
     static token = require('../../token');
+    static cryptoJs = require('crypto-js');
 
     /**
      * @description 查询该账号是否存在
@@ -81,25 +82,25 @@ class Users {
         userAccount,
         userPassword
     }) {
-        // 查询该账号是否存在
-        const isHas = await Users._isUser_(userAccount);
+        // 查询该账号的密码
+        const sqlStr = 'SELECT userPassword from users where ISDELETE = ? and userAccount = ?';
 
-        if (!isHas) {
-            return {
-                code: 300,
-                data: {},
-                message: '账号不存在',
-                success: false
-            };
-        }
-
-        // 查询密码是否正确
-        const sqlStr = 'SELECT userId from users where ISDELETE = ? and userAccount = ? and userPassword = ?';
-
-        let data = await Users.database.query(sqlStr, [0, userAccount, userPassword]),
+        let data = await Users.database.query(sqlStr, [0, userAccount]),
             message = {};
 
         if (data !== false && data.length > 0) {
+            // 将数据库中的密码加密后与前端传的加密密码作比较
+            const pwd = Users.cryptoJs.MD5(data[0].userPassword).toString();
+
+            if (pwd !== userPassword) {
+                return {
+                    code: 300,
+                    data: {},
+                    message: '密码错误',
+                    success: false
+                };
+            }
+
             // 生成token
             const token = Users.token.createToken(userAccount);
 
@@ -124,7 +125,7 @@ class Users {
             message = {
                 code: 300,
                 data: {},
-                message: '密码错误',
+                message: '账号不存在',
                 success: false
             };
         } else {

@@ -85,15 +85,11 @@ class Process {
         const isFormat = Process.untils.verifyFormat([{
                 value: userAccount,
                 regExp: /^[a-zA-Z][\w]{1,5}$/
-            },
-            {
-                value: userPassword,
-                regExp: /^[a-zA-Z][\w\.\?!]{5,15}$/
             }
         ]);
 
         // 格式错误，直接返回信息
-        if (!isFormat) {
+        if (!isFormat && (typeof userPassword !== 'string' || userPassword.length === 0)) {
             res.send({
                 code: 302,
                 data: {},
