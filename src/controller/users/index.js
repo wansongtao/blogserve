@@ -684,21 +684,6 @@ class Users {
                 return;
             }
 
-            // 判断原密码是否正确
-            const isHas = await Users._queryUser_({
-                userAccount,
-                userPassword: oldPassword
-            });
-
-            if (!isHas) {
-                return {
-                    code: 300,
-                    data: {},
-                    message: '原密码错误',
-                    success: false
-                };
-            }
-
             const curDate = new Date();
             const myDate = curDate.toLocaleDateString();
             const myTime = curDate.toTimeString().substr(0, 8);
