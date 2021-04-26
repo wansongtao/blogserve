@@ -1,6 +1,6 @@
 /**
  * @description 数据库模块
- * @author wansongtao
+ * @author 万松涛
  * @date 2020-12-08
  */
 class Database {

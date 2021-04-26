@@ -1,6 +1,6 @@
 /**
  * @description token模块
- * @author wansongtao
+ * @author 万松涛
  * @date 2020-12-11
  */
 class Token {
@@ -11,6 +11,9 @@ class Token {
      */
     static userInfoArr = [];
 
+    /**
+     * @description 用来生成token的key值
+     */
     static key = 'wansongtao8946513488'
 
     /**

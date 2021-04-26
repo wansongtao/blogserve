@@ -1,6 +1,6 @@
 /**
  * @description 路由模块
- * @author wansongtao
+ * @author 万松涛
  * @date 2020-12-08
  */
 class Router {
@@ -144,6 +144,7 @@ class Router {
   }
 }
 
+// 创建实例
 const ROUTERS = new Router();
 
 // 导出路由实例

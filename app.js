@@ -1,6 +1,6 @@
 /**
  * @description 主程序文件
- * @author wansongtao
+ * @author 万松涛
  * @date 2020-12-08
  */
 class Index {
@@ -24,7 +24,7 @@ class Index {
     webApp.use(cookieParser());
 
     webApp.all('*', (req, res, next) => {
-      // 允许跨域
+      // 只允许 http://localhost:5050 跨域请求接口
       res.header('Access-Control-Allow-Origin', 'http://localhost:5050');
       // 设置请求头
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -42,7 +42,7 @@ class Index {
       console.error('server error: ', err);
 
       res.status(500).send({
-        statusCode: 400,
+        statusCode: 500,
         message: '服务器错误'
       });
     });
@@ -58,7 +58,7 @@ class Index {
     // 设置服务器端口
     webApp.listen(6060, (err) => {
       if (err) {
-        console.error(err)
+        console.error(err);
       }
     });
 
@@ -66,4 +66,5 @@ class Index {
 
 }
 
+// 创建实例
 new Index();
