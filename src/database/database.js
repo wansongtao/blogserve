@@ -57,7 +57,7 @@ class Database {
           resolve(result);
         });
       } catch (ex) {
-        consolve.error('Class Database => _executeSql_(): ', ex.message);
+        console.error('Class Database => _executeSql_(): ', ex.message);
         reject(false);
       }
     });
