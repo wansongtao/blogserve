@@ -1128,7 +1128,7 @@ class Article {
      */
     static async blogHotArticles() {
         // 查询用户可以看见的文章并按热度排序
-        const queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist 
+        const queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot, categoryType from articlelist 
         where isdelete = ? and stateNum = ? ORDER BY hot DESC limit 10`;
 
         const data = await Article.database.query(queryStr, [0, 3]);
@@ -1174,7 +1174,7 @@ class Article {
         categoryType
     }) {
         // 查询用户可以看见的文章并按id排序  mysql语句: limit 每页条数 offset 起始位置   第一页从0开始，所以减一
-        let queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot from articlelist where  
+        let queryStr = `SELECT articleId, articleTitle, author, ADDTIME as addTime, hot, categoryType from articlelist where  
         isdelete = ? and stateNum = ? `;
 
         const sqlStr = 'and categoryType = ? ';
