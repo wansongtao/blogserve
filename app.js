@@ -8,8 +8,10 @@ class Index {
     //   引入模块
     const express = require('express');
     const bodyParser = require('body-parser');
-    const router = require('./src/router/router');
     const cookieParser = require('cookie-parser');
+
+    // 引入路由模块
+    const router = require('./src/router/router');
 
     // 创建express实例
     const webApp = express();
@@ -23,12 +25,11 @@ class Index {
     // 用来获取cookie，req.cookies.authorization
     webApp.use(cookieParser());
 
+    // 设置请求头，必须在注册路由实例之前设置
     webApp.all('*', (req, res, next) => {
       // 只允许 http://localhost:5050 跨域请求接口
       res.header('Access-Control-Allow-Origin', 'http://localhost:5050');
-      // 设置请求头
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
       res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS, PATCH');
 
       next();

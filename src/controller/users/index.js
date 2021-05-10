@@ -75,8 +75,8 @@ class Users {
     }
 
     /**
-     * @description 
-     * @param {object} user 
+     * @description 用户登录
+     * @param {object} user => {userAccount, userPassword}
      * @returns {object} {code: 200, data: {token}, message: '登录成功', success: true}
      */
     static async login({
@@ -86,11 +86,17 @@ class Users {
         // 查询该账号的密码
         const sqlStr = 'SELECT userPassword from users where ISDELETE = ? and userAccount = ?';
 
-        let data = await Users.database.query(sqlStr, [0, userAccount]),
-            message = {};
+        let data = await Users.database.query(sqlStr, [0, userAccount]);
+
+        const message = {
+            code: 401,
+            data: {},
+            message: '服务器错误',
+            success: false
+        };
 
         if (data !== false && data.length > 0) {
-            // 将数据库中的密码加密后与前端传的加密密码作比较
+            // 将数据库中该账号的密码加密后与前端传的加密密码作比较
             const pwd = Users.cryptoJs.MD5(data[0].userPassword).toString();
 
             if (pwd !== userPassword) {
@@ -114,28 +120,13 @@ class Users {
                 };
             }
 
-            message = {
-                code: 200,
-                data: {
-                    token
-                },
-                message: '登录成功',
-                success: true
-            };
+            message.code = 200;
+            message.data.token = token;
+            message.message = '登录成功';
+            message.success = true;
         } else if (data.length === 0) {
-            message = {
-                code: 300,
-                data: {},
-                message: '账号不存在',
-                success: false
-            };
-        } else {
-            message = {
-                code: 401,
-                data: {},
-                message: '服务器错误',
-                success: false
-            };
+            message.code = 300;
+            message.message = '账号不存在';
         }
 
         return message;
