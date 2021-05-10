@@ -11,12 +11,11 @@ class Process {
     static untils = require('../untils/untils');
 
     /**
-     * @description 获取用户账号，根据token
+     * @description 根据token获取用户账号
      * @param {object} req 请求对象
-     * @returns {object} 返回 {code: 200, userAccount} 获取失败时userAccount为null
+     * @returns {object} 返回 {code: 200, userAccount, message} 获取失败时userAccount为null
      */
     static _getUserAccount_(req) {
-        let token = '';
         const message = {
             code: 400,
             userAccount: null,
@@ -24,6 +23,8 @@ class Process {
         };
 
         try {
+            let token = '';
+
             if (req.query.token != undefined) {
                 // 如果传了token参数，则直接获取token的值。
                 token = req.query.token;
@@ -57,15 +58,45 @@ class Process {
             } else if (backVal === -2) {
                 // token错误
                 message.code = 300;
+                message.message = 'token错误。';
             } else {
                 // 获取账号成功
                 message.code = 200;
                 message.userAccount = backVal;
+                message.message = 'token正确，获取用户账号成功';
             }
         } catch (ex) {
             console.error('class Process => _getUserAccount_(): ', ex.message);
         } finally {
             return message;
+        }
+    }
+
+    /**
+     * @description 验证返回值是否有code、message、success三个必要属性且是否符合规范
+     * @param {object} val 返回值
+     * @returns 通过返回true，失败返回false
+     */
+    static _verifyBackValue_(val) {
+        try {
+            let backVal = false;
+
+            if (val instanceof Object && val.code != undefined && val.message != undefined && val.success != undefined) {
+                const {
+                    code,
+                    message,
+                    success
+                } = val;
+
+                if (/^[1-9][0-9]{2}$/.test(code) && (typeof message === 'string' && message.length > 0) && (success === true || success === false)) {
+                    backVal = true;
+                }
+            }
+
+            return backVal;
+        } catch (ex) {
+            console.error('class Process => _verifyBackValue_(): ', ex.message);
+            return false;
         }
     }
 
@@ -104,7 +135,17 @@ class Process {
             userPassword
         });
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
+        
     }
 
     /**
@@ -130,7 +171,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -158,7 +208,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -184,7 +243,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -266,7 +334,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -292,7 +369,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -349,7 +435,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -385,7 +480,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -419,7 +523,16 @@ class Process {
             message.code = backVal.code;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -456,7 +569,16 @@ class Process {
             message.code = backVal.code;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -498,7 +620,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -565,7 +696,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -632,7 +772,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -658,7 +807,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -726,7 +884,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -768,7 +935,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -804,7 +980,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -859,7 +1044,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -908,7 +1102,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -964,7 +1167,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1012,7 +1224,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1061,7 +1282,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1095,7 +1325,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1144,7 +1383,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1200,7 +1448,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1234,7 +1491,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1283,7 +1549,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1338,7 +1613,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1351,7 +1635,16 @@ class Process {
     static async blogUserInfo(req, res) {
         const message = await Process.users.blogUserInfo();
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1363,7 +1656,16 @@ class Process {
     static async blogHotArticles(req, res) {
         const message = await Process.article.blogHotArticles();
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1401,7 +1703,16 @@ class Process {
             categoryType
         });
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1427,7 +1738,16 @@ class Process {
 
         const message = await Process.article.blogArticleContent(Number(articleId));
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1453,7 +1773,16 @@ class Process {
 
         const message = await Process.article.blogCommentList(Number(articleId));
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1479,7 +1808,16 @@ class Process {
 
         const message = await Process.article.blogSearchArticle(keyword);
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1554,7 +1892,16 @@ class Process {
             replyId
         });
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1580,7 +1927,16 @@ class Process {
 
         const message = await Process.article.blogAddMessage(msgContent);
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1607,7 +1963,16 @@ class Process {
             pageSize
         });
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1626,7 +1991,16 @@ class Process {
 
         message = await Process.article.queryCategory();
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 
     /**
@@ -1672,7 +2046,16 @@ class Process {
             message.message = backVal.message;
         }
 
-        res.send(message);
+        if (Process._verifyBackValue_(message)) {
+            res.send(message);
+        }
+        else {
+            res.send({
+                code: 400,
+                message: '服务器繁忙，请稍后再试',
+                success: false
+            });
+        }
     }
 }
 
